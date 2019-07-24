@@ -24,10 +24,10 @@ Commonly known as A/B split testing, experimentation is a core pillar of Convers
 
 Get up and running with Mojito experiments in 4 steps:
 
-1. [Experiment setup](#experiment-setup)
-2. [Customisation and tracking](#customisation-and-tracking)
-3. [Build container, preview and launch](#build-container-preview-and-launch)
-4. [Hosting and publishing](#hosting-and-publishing)
+1. [Experiment setup](#step-1-experiment-setup)
+2. [Customisation and tracking](#step-2-customisation-and-tracking)
+3. [Build container, preview and launch](#step-3-build-container-preview-and-launch)
+4. [Hosting and publishing](#step-4-hosting-and-publishing)
 
 ### Step 1. Experiment setup
 
@@ -53,7 +53,7 @@ Host your container and automate the publishing process using CI.
 
 [Read about hosting & publishing via AWS & Bitbucket](./docs/hosting.md)
 
-## Experiment data and anaysis
+## Experiment data and analysis
 
 Data storage and analysis are contained in separate Mojito modules which can be customised and/or switched out as needed.
 
