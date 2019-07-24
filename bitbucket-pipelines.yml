@@ -1,0 +1,26 @@
+image: atlassian/default-image:2
+
+pipelines:
+  branches:
+    master:
+      - step:
+          deployment: production
+          caches:
+            - node
+          script:
+            - echo "Publishing container code..."
+            - npm install
+            - npm install -g gulp
+            - gulp scripts
+            - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
+    development:
+      - step:
+          deployment: staging
+          caches:
+            - node
+          script:
+            - echo "Publishing container code..."
+            - npm install
+            - npm install -g gulp
+            - gulp scripts
+            - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY

@@ -1,0 +1,114 @@
+{
+    "$id": "https://mojito.mintmetrics.io/wave.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Wave configuration 1-0-0",
+    "description": "A Mojito Wave configuration for generating a test object",
+    "type": "object",
+    "properties": {
+        "id": {
+            "title": "Wave ID",
+            "description": "The test ID and part of the experiment salt",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]+$",
+            "maxLength": 36
+        },
+        "name": {
+            "title": "Wave name",
+            "description": "The name of the test used in reports",
+            "type": "string",
+            "maxLength": 128
+        },
+        "sampleRate": {
+            "title": "Sample rate",
+            "description": "Percentage of units exposed to the test between 0-1",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+        },
+        "divertTo": {
+            "title": "Divert to recipe",
+            "description": "Divert all traffic in this test to a specified recipe ID",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]+$",
+            "maxLength": 36
+        },
+        "recipes": {
+            "title": "Recipes object",
+            "description": "The different recipes or treatments to assign traffic amongst",
+            "type": "object",
+            "minProperties": 2,
+            "patternProperties": {
+                "^[a-zA-Z0-9]+$": {
+                    "title": "Recipe object",
+                    "description": "A recipe object",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "title": "Recipe name",
+                            "description": "The name of the recipe used in reports",
+                            "type": "string",
+                            "maxLength": 128
+                        },
+                        "js": {
+                            "title": "Recipe JS",
+                            "description": "Relative path to the recipe's JS function",
+                            "type": "string",
+                            "pattern": "\\.js$"
+                        },
+                        "css": {
+                            "title": "Recipe CSS",
+                            "description": "Relative path to the recipe's CSS stylesheet",
+                            "type": "string",
+                            "pattern": "\\.css$"
+                        },
+                        "sampleRate": {
+                            "title": "Sample rate",
+                            "description": "The sample of traffic in the test to assign to this recipe (between 0-1)",
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "trigger": {
+            "title": "Trigger function",
+            "description": "Relative path to the experiment's trigger JS function - the function that activates an experiment",
+            "type": "string",
+            "pattern": "\\.js$"
+        },
+        "js": {
+            "title": "Shared JS",
+            "description": "Relative path to a shared JS function run before all recipes",
+            "type": "string",
+            "pattern": "\\.js$"
+        },
+        "css": {
+            "title": "Shared CSS",
+            "description": "Relative path to shared CSS styles applied for all recipes",
+            "type": "string",
+            "pattern": "\\.css$"
+        },
+        "gaExperimentId": {
+            "title": "Google Optimize Experiment ID",
+            "description": "Track this experiment in Google Optimize under a given Experiment ID",
+            "type": "string"
+        },
+        "state": {
+            "title": "State",
+            "description": "Specifies whether the experiment is actively accepting users into the test (i.e. live) or not (i.e. staging or inactive)",
+            "type": "string",
+            "enum": ["live", "staging", "inactive"]
+        },
+        "manualExposure": {
+            "title": "Manual exposure",
+            "description": "Controls whether exposure tracking will be handled manually (i.e. within the variant code, or automatically, upon assignment)",
+            "type": "boolean"
+        }
+    },
+    "required": ["id", "name", "recipes", "state", "sampleRate", "trigger"],
+    "additionalProperties": true
+}

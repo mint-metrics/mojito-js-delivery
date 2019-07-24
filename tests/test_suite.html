@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mocha</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    <script src="../node_modules/should/should.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../dist/assets/js/mojito.js"></script>
+</head>
+
+<body>
+<div id="mocha"></div>
+<script type="text/javascript">
+    // Mojito setup
+    var dataLayer = dataLayer || [];
+    Mojito.options.clientId = 'test-suite';
+    Mojito.options.debug = false;
+    Mojito.options.storageAdapter = {
+        onExposure: function (testObject)
+        {
+            dataLayer.push({
+                "event": "mojito exposure",
+                "mojitoObject": testObject
+            });
+        },
+        onRecipeFailure: function(testObject, error)
+        {
+            dataLayer.push({
+                "event": "mojito recipe failure",
+                "mojitoObject": testObject,
+                "error": error
+            });
+        },
+        onTimeoutFailure: function (testObject, ultimateRecipe) {}
+    };
+
+    // Check values in dataLayer
+    function exposureIsTracked(testName) {
+        for (var i = 0; i<dataLayer.length; i++) {
+            //console.log(dataLayer[i]);
+            if (dataLayer[i].mojitoObject.options.name === testName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Test suite
+    mocha.setup('bdd');
+
+    describe('Mojito wave functions', function () {
+
+        var removeCookieByName = function (name) {
+            document.cookie = name + '=;expires=Sat, 31 Jan 1970 16:00:00 GMT;path=/';
+        };
+
+        beforeEach(function () {
+            // clear Mojito cookies
+            removeCookieByName('_mojito_w1');
+            removeCookieByName('_mojito_w2');
+            removeCookieByName('_mojito_w3');
+        });
+
+        // Users are bucketed into test
+        var w1NewToTest = false;
+        Mojito.addTest({
+            id: 'w1',
+            state: 'live',
+            name: 'unit_test_new',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w1NewToTest = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w1NewToTest = true;
+                    }
+                }
+            }
+        });
+        it('Plain test activates', function () {
+            w1NewToTest.should.equal(true);
+        });
+        it('Exposure event fired', function () {
+            exposureIsTracked('unit_test_new').should.equal(true);
+        });
+
+
+        // User can return to test despite sample rate
+        var w1ReturningToTest = false;
+        Mojito.addTest({
+            id: 'w1',
+            state: 'live',
+            name: 'unit_test_returning',
+            sampleRate: 0,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w1ReturningToTest = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w1ReturningToTest = true;
+                    }
+                }
+            }
+        });
+        it('Users can return to test bypassing sample rate', function () {
+            w1ReturningToTest.should.equal(true);
+        });
+
+
+        // Test should not activate when state is not live
+        var w1Staging = false;
+        Mojito.addTest({
+            id: 'w1',
+            state: 'staging',
+            name: 'unit_test_staging_mode',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w1Staging = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w1Staging = true;
+                    }
+                }
+            }
+        });
+        it('Staging mode test not activated', function () {
+            w1Staging.should.equal(false);
+        });
+
+
+        // Test should not activate when state is not live
+        Mojito.addTest({
+            id: 'w1',
+            state: 'live',
+            name: 'manual_exposure_fire',
+            sampleRate: 1,
+            manualExposure: true,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function (test) {
+                        test.trackExposureEvent();
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function (test) {
+                        test.trackExposureEvent();
+                    }
+                }
+            }
+        });
+        it('Manual exposure event fires when called', function () {
+            exposureIsTracked('manual_exposure_fire').should.equal(true);
+        });
+
+        // Test should not activate when state is not live
+        Mojito.addTest({
+            id: 'w1',
+            state: 'live',
+            name: 'manual_exposure_not_fired',
+            sampleRate: 1,
+            manualExposure: true,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment'
+                }
+            }
+        });
+        it('Manual exposure event does not fire when it is not called', function () {
+            exposureIsTracked('manual_exposure_not_fired').should.equal(false);
+        });
+
+        // Divert mode sends user to desired treatment and fires error
+        var w2DivertError = false;
+        Mojito.addTest({
+            id: 'w2',
+            state: 'live',
+            name: 'unit_test_divert_error',
+            sampleRate: 1,
+            divertTo: '1',
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w2DivertError = true;
+                        throw('A test error');
+                    }
+                }
+            }
+        });
+        it('Divert mode sends users to correct recipe', function () {
+            w2DivertError.should.equal(true);
+        });
+        it('Error captured by storage adapter', function () {
+            var testResult = false;
+            for (var i = 0; i<dataLayer.length; i++) {
+                if (dataLayer[i].mojitoObject.options.name === 'unit_test_divert_error' && dataLayer[i].event === 'mojito recipe failure') {
+                    testResult = true;
+                }
+            }
+            testResult.should.equal(true);
+        });
+
+
+
+        // Exclude user by sample rate
+        var w3ExcludedBySample = true;
+        Mojito.addTest({
+            id: 'w3',
+            state: 'live',
+            name: 'unit_test_excluded_by_sample',
+            sampleRate: 0,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w3ExcludedBySample = false;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w3ExcludedBySample = false;
+                    }
+                }
+            }
+        });
+        it('Exclude users through sample rate', function () {
+            w3ExcludedBySample.should.equal(true);
+        });
+
+        // Exclude user by container-wide exclusion setting
+        Mojito.options.excluded = true;
+        var w4ExcludedByContainerSetting = true;
+        Mojito.addTest({
+            id: 'w4',
+            state: 'live',
+            name: 'unit_test_excluded_by_container_setting',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w4ExcludedByContainerSetting = false;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w4ExcludedByContainerSetting = false;
+                    }
+                }
+            }
+        });
+        Mojito.options.excluded = false;
+        it('Exclude users through container setting', function () {
+            w4ExcludedByContainerSetting.should.equal(true);
+        });
+
+        // inject css on recipe level
+        var w5CssInjected = false;
+        Mojito.addTest({
+            id: 'w5',
+            state: 'live',
+            name: 'unit_test_css_inject_recipe',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    css: '.myclass {color:red;}',
+                    js: function () {
+                        var testDiv = document.createElement('div');
+                        testDiv.className = 'myclass';
+                        document.body.appendChild(testDiv);
+
+                        if (window.getComputedStyle(testDiv).color == 'rgb(255, 0, 0)')
+                        {
+                            w5CssInjected = true;
+                        }
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    css: 'body{color:green;}',
+                    js: function () {
+                        var testDiv = document.createElement('div');
+                        testDiv.className = 'myclass';
+                        document.body.appendChild(testDiv);
+
+                        if (window.getComputedStyle(testDiv).color == 'rgb(0, 128, 0)')
+                        {
+                            w5CssInjected = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        it('CSS Injection on recipe level', function () {
+            w5CssInjected.should.equal(true);
+        });
+
+        // inject css on test level
+        var w6CssInjected = false;
+        Mojito.addTest({
+            id: 'w5',
+            state: 'live',
+            name: 'unit_test_css_inject_test',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            css: '.myclass {color:red;}',
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        var testDiv = document.createElement('div');
+                        testDiv.className = 'myclass';
+                        document.body.appendChild(testDiv);
+
+                        if (window.getComputedStyle(testDiv).color == 'rgb(255, 0, 0)')
+                        {
+                            w6CssInjected = true;
+                        }
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        var testDiv = document.createElement('div');
+                        testDiv.className = 'myclass';
+                        document.body.appendChild(testDiv);
+
+                        if (window.getComputedStyle(testDiv).color == 'rgb(255, 0, 0)')
+                        {
+                            w6CssInjected = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        it('CSS Injection on test level', function () {
+            w6CssInjected.should.equal(true);
+        });
+
+    });
+
+    describe('Mojito utils functions', function () {
+        var testDiv = document.createElement('div');
+        testDiv.id = 'observe-existing';
+        testDiv.className = 'observe-existing';
+        document.body.appendChild(testDiv);
+
+        it('observeSelector on existing elements', function () {
+            Mojito.utils.observeSelector('.observe-existing', function (element)
+            {
+                element.id.should.equal('observe-existing');
+            });
+        });
+
+        it('observeSelector on dynamic elements', function (done) {
+            Mojito.utils.observeSelector('.observe-dynamic', function ()
+            {
+                done();
+            });
+
+            testDiv = document.createElement('div');
+            testDiv.id = 'observe-dynamic';
+            testDiv.className = 'observe-dynamic';
+            document.body.appendChild(testDiv);
+        });
+
+        it('observeSelector timeout', function (done) {
+            Mojito.utils.observeSelector('.timeout', function ()
+            {
+                done('error');
+            },
+            {
+                timeout: 1000,
+                onTimeout: function ()
+                {
+                    done();
+                }
+            });
+        });
+
+        it('waitForElement on existing elements', function () {
+            Mojito.utils.waitForElement('.observe-existing', function (element)
+            {
+                element.id.should.equal('observe-existing');
+            });
+        });
+
+        it('waitForElement on dynamic elements', function (done) {
+            Mojito.utils.observeSelector('.observe-dynamic-wait', function (element)
+            {
+                done();
+            });
+
+            testDiv = document.createElement('div');
+            testDiv.className = 'observe-dynamic-wait';
+            document.body.appendChild(testDiv);
+        });
+
+        it('waitUntil', function (done) {
+            var waitSignal = 0;
+            Mojito.utils.waitUntil(function ()
+            {
+                return waitSignal === 1;
+            }, function (element)
+            {
+                done();
+            });
+
+            setTimeout(function ()
+            {
+                waitSignal = 1;
+            }, 1000);
+        });
+
+        it('waitUntil timeout', function (done) {
+            var waitSignal = 0;
+            var waitUntilState = 0;
+            Mojito.utils.waitUntil(function ()
+            {
+                return waitSignal === 1;
+            }, function (element)
+            {
+                waitUntilState = 1;
+            }, 1200);
+
+            setTimeout(function ()
+            {
+                if (waitUntilState === 0)
+                {
+                    done();
+                }
+            }, 1500);
+        });
+
+        it('watchElement changes', function (done) {
+            testDiv = document.createElement('div');
+            testDiv.className = 'watch-changes';
+            document.body.appendChild(testDiv);
+
+            Mojito.utils.watchElement('.watch-changes', function (mutationsList)
+            {
+                done();
+            });
+
+            testDiv.innerHTML = 'changed';
+        });
+
+    });
+
+    if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+    }
+    else {
+        mocha.run();
+    }
+
+</script>
+</body>
+
+</html>

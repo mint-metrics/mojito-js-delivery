@@ -1,0 +1,135 @@
+--- # Experiment configuration
+
+### Experiment status ###
+# Key: 
+#     state
+# Acceptable values: 
+#     "live"
+#     "staging"
+# Description: 
+#     Controls status of experiment.
+#     "live" - experiment is LIVE
+#     "staging" - experiment is OFF and in staging/preview mode
+###
+state: "staging" 
+
+### Experiment traffic allocation ###
+# Key: 
+#     sampleRate
+# Acceptable values: 
+#     float between 0 and 1 (representing 0 - 100%)
+# Description: 
+#     Controls portion of overall traffic to be allocated to the experiment. e.g.
+#     0 - experiment allocated to 0% of traffic, i.e. soft OFF
+#     1 - experiment allocated to 100% of traffic
+#     0.9 - experiment allocated to 90% of traffic, i.e. 10% holdback group
+###
+sampleRate: 0
+
+### Experiment id & name ###
+# Key: 
+#     id
+# Acceptable values: 
+#     any string
+# Description: 
+#     Experiment Id, used by Mojito for reporting and forcing variants in preview mode
+###
+# Key: 
+#     name
+# Acceptable values: 
+#     any string
+# Description: 
+#     Descriptive experiment name
+###
+id: "wX"
+name: "WX My Cool Experiment"
+
+#############################################################################
+### DO NOT EDIT VALUES PAST THIS POINT UNLESS YOU KNOW WHAT YOU ARE DOING ###
+#############################################################################
+
+### Experiement variants ###
+# Key:
+#     recipes
+# Acceptable values / nested structure: 
+#     "{recipeId}":
+#       name: "{recipeName}"
+#       js: "{recipe.js}" (optional)
+#       css: "{receipe.css}" (optional)
+#       sampleRate: {float between 0 and 1} (optional)
+# Description: 
+#     Lists out all experiment variants by their id and name.
+#     Optional values to define per variant: JS and CSS filenames, sampleRate.
+###
+recipes: 
+  "0":
+    name: "Control"
+  "1":
+    name: "Treatment"
+    js: "1.js"
+    css: "1.css"
+
+### Experiment trigger ###
+# Key:
+#     trigger
+# Acceptable values / nested structure: 
+#     "{trigger.js}"
+# Description: 
+#     Points to the JS file containing trigger function to activate the experiment.
+###
+trigger: "trigger.js"
+
+#################
+# OPTIONAL KEYS #
+#################
+
+### Experiment shared JS and CSS ###
+# Key: 
+#     js
+# Acceptable values: 
+#     "{shared.js}"
+# Description: 
+#     Points to the JS file containing trigger function to activate the experiment.
+#     Can be accessed with test.options.js.{function}
+###
+# Key: 
+#     css
+# Acceptable values: 
+#     "{shared.css}"
+# Description: 
+#     Points to the CSS file containing trigger function to activate the experiment.
+#     CSS is injected where ever experiment is activated.
+###
+#js: "shared.js"
+#css: "shared.css"
+
+### Experiment divert ###
+# Key: 
+#     divertTo
+# Acceptable values: 
+#     "{recipeId}"
+# Description: 
+#     Allows diverting 100% of traffic to the specified recipeId.
+###
+#divertTo: null 
+
+### Experiment status ###
+# Key: 
+#     manualExposure
+# Acceptable values: 
+#     true
+#     false
+# Description: 
+#     Controls automatic exposure tracking for an experiment.
+#     true - (Default) Automatically track exposures
+#     false - Switch off automatic exposure tracking
+###
+#manualExposure: false 
+
+
+### Experiment custom key:value pairs ###
+# Description: 
+#     Add any additional key:value pairs here
+#     Can be accessed with test.options.{key}
+###
+#foo: "bar"
