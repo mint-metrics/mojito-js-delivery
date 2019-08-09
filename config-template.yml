@@ -10,6 +10,7 @@
 #     Controls status of experiment.
 #     "live" - experiment is LIVE
 #     "staging" - experiment is OFF and in staging/preview mode
+#     "inactive" - experiment is ignored by the gulp/YAML build process
 ###
 state: "staging" 
 
