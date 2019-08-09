@@ -7,7 +7,7 @@ const gulp = require('gulp'),
     addsrc = require('gulp-add-src'),
     modularBuild = require('./modular-build'),
     config = require('./config'),
-    mochaPhantomJS = require('gulp-mocha-phantomjs');
+    mochaPhantomJS = require('./mocha-phantomjs');
 
 // parsing extra arguments from process.argv
 const getCLIArgs = () =>
@@ -39,17 +39,19 @@ const getCLIArgs = () =>
     return args;
 };
 
-gulp.task('test', function ()
+function test()
 {
-    gulp.src('tests/test_suite.html')
-        .pipe(mochaPhantomJS({reporter: 'spec', dump: 'test.log'}));
+    return (
+        gulp.src('tests/test_suite.html')
+            .pipe(mochaPhantomJS({reporter: 'spec', dump: 'test.log'}))
+    );
+}
 
-});
-
-gulp.task('scripts', function ()
+function scripts()
 {
     del(['dist/assets/js']);
     let containerName = config.containerName;
+    return (
     gulp.src('lib/waves/**/config.yml')
         .pipe(yaml())
         .pipe(modularBuild())
@@ -61,10 +63,11 @@ gulp.task('scripts', function ()
         .pipe(uglify())
         .pipe(addsrc.prepend(['license.txt']))
         .pipe(concat(containerName + '.js'))
-        .pipe(gulp.dest('dist/assets/js'));
-});
+        .pipe(gulp.dest('dist/assets/js'))
+    );
+}
 
-gulp.task("publish", function ()
+function publish()
 {
     let args = getCLIArgs();
     // http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property
@@ -103,4 +106,9 @@ gulp.task("publish", function ()
             .pipe(publisher.publish(headers, { force: true }))
             .pipe(awspublish.reporter())
     );
-});
+}
+
+exports.test = test;
+exports.scripts = scripts;
+exports.publish = publish;
+exports.default = scripts;
