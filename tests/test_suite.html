@@ -92,6 +92,10 @@
         it('Plain test activates', function () {
             w1NewToTest.should.equal(true);
         });
+        var w1GetTestState = Mojito.getTest('w1').options.state;
+        it('Plain test accessible via .getTest()', function () {
+            w1GetTestState.should.equal('live');
+        });
         it('Exposure event fired', function () {
             exposureIsTracked('unit_test_new').should.equal(true);
         });
