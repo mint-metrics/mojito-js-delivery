@@ -6,8 +6,19 @@ const gulp = require('gulp'),
     yaml = require('gulp-yaml'),
     addsrc = require('gulp-add-src'),
     modularBuild = require('./modular-build'),
-    config = require('./config'),
-    mochaPhantomJS = require('./mocha-phantomjs');
+    mochaPhantomJS = require('./mocha-phantomjs'),
+    fs = require('fs');
+
+
+// Check whether config exists & create it if not.
+for (const file of ['config.js', 'lib/shared-code.js'])
+{
+    !fs.existsSync(file) && 
+    fs.existsSync(file.replace('.js', '.example.js')) && 
+    fs.copyFileSync(file.replace('.js', '.example.js'), file);
+}
+const config = require('./config');
+
 
 // parsing extra arguments from process.argv
 const getCLIArgs = () =>
