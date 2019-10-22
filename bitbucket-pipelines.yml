@@ -10,7 +10,7 @@ pipelines:
           script:
             - echo "Publishing container code..."
             - npm install
-            - npm install -g gulp
+            - npm install -g gulp-cli
             - gulp scripts
             - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
     development:
@@ -21,6 +21,6 @@ pipelines:
           script:
             - echo "Publishing container code..."
             - npm install
-            - npm install -g gulp
+            - npm install -g gulp-cli
             - gulp scripts
             - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY

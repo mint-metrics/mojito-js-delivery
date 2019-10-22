@@ -10,9 +10,14 @@ Commonly known as A/B split testing, experimentation is a core pillar of Convers
 
 <p align="center"><img src="delivery-module.png" alt="Mojito delivery module" /></p>
 
+<p align="center">
+<a href="https://mojito.mx/docs/js-delivery-intro">Documentation</a> | <a href="https://github.com/mint-metrics/mojito">Mojito project</a>
+</p>
+
 ## Prerequisites
 
 - [npm](https://www.npmjs.com/)
+- [Gulp](https://gulpjs.com/)
 
 ## Getting setup
 
@@ -24,34 +29,34 @@ Commonly known as A/B split testing, experimentation is a core pillar of Convers
 
 Get up and running with Mojito experiments in 4 steps:
 
-1. [Experiment setup](#step-1-experiment-setup)
-2. [Customisation and tracking](#step-2-customisation-and-tracking)
-3. [Build container, preview and launch](#step-3-build-container-preview-and-launch)
-4. [Hosting and publishing](#step-4-hosting-and-publishing)
+1. [Experiment setup](https://mojito.mx/docs/js-delivery-setup)
+2. [Customisation and tracking](https://mojito.mx/docs/js-delivery-customisation)
+3. [Build container, preview and launch](https://mojito.mx/docs/js-delivery-preview-launch)
+4. [Hosting and publishing](https://mojito.mx/docs/js-delivery-hosting)
 
 ### Step 1. Experiment setup
 
 Learn about different approaches to setup experiments with Mojito. Get to know and understand important experiment parameters.
 
-[Read about experiment setup.](./docs/setup.md)
+[Read about experiment setup.](https://mojito.mx/docs/js-delivery-setup)
 
 ### Step 2. Customisation and tracking
 
 Set up custom tracking, error handling & user exclusion rules for your entire container.
 
-[Read about customisation and tracking.](./docs/customisation.md)
+[Read about customisation and tracking.](https://mojito.mx/docs/js-delivery-customisation)
 
 ### Step 3. Build container, preview and launch
 
 Use Gulp to build the Mojito container and see how to preview and launch experiments.
 
-[Read about the build, preview and launch process.](./docs/preview_launch.md)
+[Read about the build, preview and launch process.](https://mojito.mx/docs/js-delivery-preview-launch)
 
 ### Step 4. Hosting and publishing
 
 Host your container and automate the publishing process using CI.
 
-[Read about hosting & publishing via AWS & Bitbucket](./docs/hosting.md)
+[Read about hosting & publishing via AWS & Bitbucket](https://mojito.mx/docs/js-delivery-hosting)
 
 ## Experiment data and analysis
 
@@ -66,3 +71,4 @@ Let us know if you encounter any issues and reach out to us if you need a hand g
 
 * [Open an issue on Github](https://github.com/mint-metrics/mojito-js-delivery/issues/new)
 * [Mint Metrics' website](https://mintmetrics.io/)
+* [Mojito Documentation](https://mojito.mx/docs/js-delivery-hosting)
