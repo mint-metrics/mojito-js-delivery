@@ -43,15 +43,22 @@ function buildTest(file, stream, buildResult)
 			return Buffer.from('');
 		}
 
-		if (testObject.state == 'live')
+		if (testObject.divertTo != null)
 		{
-			buildResult.liveList.push(testObject.id);
+			buildResult.divertList.push(testObject.id);
 		}
 		else
 		{
-			buildResult.stagingList.push(testObject.id);
+			if (testObject.state == 'live')
+			{
+				buildResult.liveList.push(testObject.id);
+			}
+			else
+			{
+				buildResult.stagingList.push(testObject.id);
+			}
 		}
-
+		
 		contents = JSON.stringify(testObject, null, 4);
 		// inject file contents
 		// shared js and css

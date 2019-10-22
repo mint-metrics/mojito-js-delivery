@@ -63,7 +63,7 @@ function scripts()
 {
     del(['dist/assets/js']);
     let containerName = config.containerName;
-    let modularResult = {liveList: [], stagingList: [], inactive: 0};
+    let modularResult = {liveList: [], stagingList: [], divertList: [], inactive: 0};
     return (
     gulp.src('lib/waves/**/config.yml')
         .pipe(yaml())
@@ -80,7 +80,7 @@ function scripts()
         .pipe(through.obj(function(file, enc, callback)
         {
             let gzippedSize = ((zlib.gzipSync(file.contents, {level: 9}).length)/1024).toFixed(2) + ' KB',
-                activeTestCount = modularResult.liveList.length + modularResult.stagingList.length,
+                activeTestCount = modularResult.liveList.length + modularResult.divertList.length + modularResult.stagingList.length,
                 colorCyan = '\x1b[36m',
                 colorReset = '\x1b[0m';
 
@@ -104,6 +104,13 @@ function scripts()
                         console.log(
                             '%s' + colorCyan + '%s' + colorReset + '%s', 
                             '  Staging (', modularResult.stagingList.length, ') - ' + modularResult.stagingList.join(' '));
+                    }
+
+                    if (modularResult.divertList.length)
+                    {
+                        console.log(
+                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            '  Diverted (', modularResult.divertList.length, ') - ' + modularResult.divertList.join(' '));
                     }
                 }
                 else
