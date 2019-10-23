@@ -7,12 +7,12 @@ const fs = require("fs");
 const PLUGIN_NAME = 'mojito-modular-build';
 
 // Mojito building - building test objects based on config.yml
-module.exports = function ()
+module.exports = function (buildResult)
 {
 	return through.obj(function (file, enc, callback)
 	{
 		const stream = this;
-		file.contents = buildTest(file, stream);
+		file.contents = buildTest(file, stream, buildResult);
 		file.path = renameDestFile(file.path);
 		stream.push(file);
 		callback();
@@ -25,7 +25,7 @@ module.exports = function ()
  * @param {Stream} stream, gulp stream
  * @returns {Buffer} final file contents
  */
-function buildTest(file, stream)
+function buildTest(file, stream, buildResult)
 {
 	var contents,
 		testObject,
@@ -39,9 +39,26 @@ function buildTest(file, stream)
 		// skip inactive tests
 		if (testObject.state == 'inactive')
 		{
+			buildResult.inactive ++;
 			return Buffer.from('');
 		}
 
+		if (testObject.state == 'live')
+		{
+			if (testObject.divertTo != null)
+			{
+				buildResult.divertList.push(testObject.id);
+			}
+			else 
+			{
+				buildResult.liveList.push(testObject.id);
+			}
+		}
+		else
+		{
+			buildResult.stagingList.push(testObject.id);
+		}
+		
 		contents = JSON.stringify(testObject, null, 4);
 		// inject file contents
 		// shared js and css
