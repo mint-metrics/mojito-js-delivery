@@ -7,9 +7,10 @@ const gulp = require('gulp'),
     addsrc = require('gulp-add-src'),
     modularBuild = require('./modular-build'),
     mochaPhantomJS = require('./mocha-phantomjs'),
-    fs = require('fs');
-
-
+    fs = require('fs'),
+    through = require('through2'),
+    zlib = require('zlib');
+    
 // Check whether config exists & create it if not.
 for (const file of ['config.js', 'lib/shared-code.js'])
 {
@@ -62,10 +63,11 @@ function scripts()
 {
     del(['dist/assets/js']);
     let containerName = config.containerName;
+    let modularResult = {liveList: [], stagingList: [], divertList: [], inactive: 0};
     return (
     gulp.src('lib/waves/**/config.yml')
         .pipe(yaml())
-        .pipe(modularBuild())
+        .pipe(modularBuild(modularResult))
         .pipe(concat('test-objects.js'))
         .pipe(addsrc.append(['lib/waves/**/test-object.js']))
         .pipe(addsrc.prepend(['license.txt', 'lib/mojito.js', 'lib/shared-code.js']))
@@ -75,6 +77,59 @@ function scripts()
         .pipe(addsrc.prepend(['license.txt']))
         .pipe(concat(containerName + '.js'))
         .pipe(gulp.dest('dist/assets/js'))
+        .pipe(through.obj(function(file, enc, callback)
+        {
+            let gzippedSize = ((zlib.gzipSync(file.contents, {level: 9}).length)/1024).toFixed(2) + ' KB',
+                activeTestCount = modularResult.liveList.length + modularResult.divertList.length + modularResult.stagingList.length,
+                colorCyan = '\x1b[36m',
+                colorReset = '\x1b[0m';
+
+            // use setTimeout to let built result messages display after gulp 'Finished...' message
+            setTimeout(function(){
+                if (activeTestCount)
+                {
+                    console.log(
+                        '%s' + colorCyan + '%s' + colorReset + '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        'Mojito container built with ', activeTestCount, ' tests (', gzippedSize, '):');
+    
+                    if (modularResult.liveList.length)
+                    {
+                        console.log(
+                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            '  Live (', modularResult.liveList.length, ') - ' + modularResult.liveList.join(' '));
+                    }
+    
+                    if (modularResult.stagingList.length)
+                    {
+                        console.log(
+                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            '  Staging (', modularResult.stagingList.length, ') - ' + modularResult.stagingList.join(' '));
+                    }
+
+                    if (modularResult.divertList.length)
+                    {
+                        console.log(
+                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            '  Diverted (', modularResult.divertList.length, ') - ' + modularResult.divertList.join(' '));
+                    }
+                }
+                else
+                {
+                    console.log(
+                        '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        'Mojito container built (', gzippedSize, ')');
+                }
+    
+                if (modularResult.inactive)
+                {
+                    console.log(
+                        '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        '  Inactive (', modularResult.inactive, ')');
+                }
+            });
+            
+            callback(null, file);
+        }))
     );
 }
 
