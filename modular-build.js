@@ -43,20 +43,20 @@ function buildTest(file, stream, buildResult)
 			return Buffer.from('');
 		}
 
-		if (testObject.divertTo != null)
+		if (testObject.state == 'live')
 		{
-			buildResult.divertList.push(testObject.id);
-		}
-		else
-		{
-			if (testObject.state == 'live')
+			if (testObject.divertTo != null)
+			{
+				buildResult.divertList.push(testObject.id);
+			}
+			else 
 			{
 				buildResult.liveList.push(testObject.id);
 			}
-			else
-			{
-				buildResult.stagingList.push(testObject.id);
-			}
+		}
+		else
+		{
+			buildResult.stagingList.push(testObject.id);
 		}
 		
 		contents = JSON.stringify(testObject, null, 4);
