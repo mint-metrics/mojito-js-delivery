@@ -5,13 +5,13 @@ const gulp = require('gulp'),
     awspublish = require('gulp-awspublish'),
     yaml = require('gulp-yaml'),
     addsrc = require('gulp-add-src'),
-    modularBuild = require('./modular-build'),
-    mochaPhantomJS = require('./mocha-phantomjs'),
+    modularBuild = require('./scripts/modular-build'),
+    mochaPhantomJS = require('./scripts/mocha-phantomjs'),
     fs = require('fs'),
     through = require('through2'),
     zlib = require('zlib'),
-    scaffoldCli = require('./cli-scaffold'),
-    setCli = require('./cli-set');
+    newCli = require('./scripts/cli-new'),
+    setCli = require('./scripts/cli-set');
     
 // Check whether config exists & create it if not.
 for (const file of ['config.js', 'lib/shared-code.js'])
@@ -21,7 +21,6 @@ for (const file of ['config.js', 'lib/shared-code.js'])
     fs.copyFileSync(file.replace('.js', '.example.js'), file);
 }
 const config = require('./config');
-
 
 // parsing extra arguments from process.argv
 const getCLIArgs = (defaultNull) =>
@@ -176,12 +175,12 @@ function publish()
     );
 }
 
-function scaffold(cb)
+function cliNew(cb)
 {
-    scaffoldCli(getCLIArgs(true), cb);
+    newCli(getCLIArgs(true), cb);
 }
 
-function set(cb)
+function cliSet(cb)
 {
     setCli(getCLIArgs(true), cb);
 }
@@ -190,5 +189,5 @@ exports.test = test;
 exports.scripts = scripts;
 exports.publish = publish;
 exports.default = scripts;
-exports.scaffold = scaffold;
-exports.set = set;
+exports.new = cliNew;
+exports.set = cliSet;

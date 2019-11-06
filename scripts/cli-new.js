@@ -207,7 +207,7 @@ function usage()
 {
     console.warn(`${colorRed}%s${colorReset}`, 'Invalid parameters.');
     console.warn('Usage:');
-    console.warn('  gulp scaffold -new {{wave id}}');
-    console.warn('  gulp scaffold -demo {{wave id}}');
-    console.warn('  gulp scaffold -aa {{wave id}}');
+    console.warn('  gulp new --new {{wave id}}');
+    console.warn('  gulp new --demo {{wave id}}');
+    console.warn('  gulp new --aa {{wave id}}');
 }

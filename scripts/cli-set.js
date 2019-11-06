@@ -18,11 +18,11 @@ module.exports = function (args, cb)
         divertTest(waveId, args.recipe, cb);
     }
     else {
-        setTestState(waveId, cmd, cb);
+        setTestState(waveId, cmd, args, cb);
     }
 }
 
-function setTestState(waveId, cmd, cb)
+function setTestState(waveId, cmd, args, cb)
 {
     let test;
     try {
@@ -40,6 +40,22 @@ function setTestState(waveId, cmd, cb)
     // change sampleRate to 1 for 'live', 0 for 'staging'
     if (cmd == 'live') {
         test.sampleRate = 1;
+        // traffic 
+        if (args.traffic != null)
+        {
+            let traffic = parseFloat(args.traffic);
+            if (isNaN(traffic) || (traffic <=0 || traffic > 1))
+            {
+                setTimeout(function ()
+                {
+                    console.error(`${colorRed}%s${colorReset}`, `Traffic must be in range (0, 1].`);
+                });
+                cb();
+
+                return;
+            }
+            test.sampleRate = traffic;
+        }
     }
     else if (cmd == 'staging') {
         test.sampleRate = 0;
@@ -64,6 +80,17 @@ function divertTest(waveId, recipe, cb)
         setTimeout(function ()
         {
             console.error(`${colorRed}%s${colorReset}`, `Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
+        });
+        cb();
+        return;
+    }
+
+    // test must be live
+    if (test.state != 'live')
+    {
+        setTimeout(function ()
+        {
+            console.error(`${colorRed}%s${colorReset}`, `Test must live.`);
         });
         cb();
         return;
@@ -101,7 +128,7 @@ function checkArgs(args, cb)
     let keys = Object.keys(args),
         cmd = keys[0];
 
-    if (cmd == 'divert') {
+    if (cmd == 'divert' || cmd == 'live') {
         if (keys.length > 2) {
             setTimeout(usage);
             cb();
@@ -158,8 +185,8 @@ function usage()
 {
     console.log(`${colorRed}%s${colorReset}`, 'Invalid parameters.');
     console.warn('Usage:');
-    console.warn('  gulp set -live {{wave id}}');
-    console.warn('  gulp set -staging {{wave id}}');
-    console.warn('  gulp set -inactive {{wave id}}');
-    console.warn('  gulp set -divert {{wave id}} -recipe {{recipe id}}');
+    console.warn('  gulp set --live {{wave id}} --traffic {{simple rate}}');
+    console.warn('  gulp set --staging {{wave id}}');
+    console.warn('  gulp set --inactive {{wave id}}');
+    console.warn('  gulp set --divert {{wave id}} -recipe {{recipe id}}');
 }
