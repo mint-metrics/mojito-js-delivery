@@ -17,26 +17,78 @@ module.exports = function (args, cb)
     createTest(cmd, waveId, cb);
 }
 
-function createTest(cmd, waveId, cb)
+function testExists(waveId, cb)
 {
     // lib/waves/{wave id} folder must be empty
-    let waveFolder = 'lib/waves/' + waveId,
+    let baseFolder = 'lib/waves/',
+        waveFolder = baseFolder + waveId,
         folderExist = fs.existsSync(waveFolder);
     if (folderExist && fs.readdirSync(waveFolder).length) {
         setTimeout(function ()
         {
-            console.warn(`${colorRed}%s${colorReset}`, `Wave id [${waveId}] already exists.`);
+            console.warn(`${colorRed}%s${colorReset}`, `The folder ${waveFolder} already exists.`);
         });
         cb();
+        return true;
+    }
+
+    // scan each config.yml file to make sure there are no clashing waveIds defined in the YAML
+    let waves = fs.readdirSync(baseFolder),
+        test,
+        exist = false,
+        wave;
+
+    for (wave of waves)
+    {
+        if (!fs.existsSync(`${baseFolder}${wave}/config.yml`))
+        {
+            continue;
+        }
+
+        try 
+        {
+            test = yaml.safeLoad(fs.readFileSync(`${baseFolder}${wave}/config.yml`, 'utf8'));
+        }
+        catch (e) 
+        {
+            continue;
+        }
+
+        if (test.state == 'inactive' || test.id != waveId)
+        {
+            continue;
+        }
+
+        exist = true;
+        break;
+    }
+
+    if (exist)
+    {
+        setTimeout(function ()
+        {
+            console.warn(`${colorRed}%s${colorReset}`, `Duplicated wave ${waveId} found in ${baseFolder}${wave}/config.yml.`);
+        });
+        cb();
+    }
+
+    return exist;
+}
+
+function createTest(cmd, waveId, cb)
+{
+    // lib/waves/{wave id} folder must be empty
+    let waveFolder = 'lib/waves/' + waveId;
+    if (testExists(waveId, cb)) {
         return;
     }
 
-    if (!folderExist) {
+    if (!fs.existsSync(waveFolder)) {
         fs.mkdirSync(waveFolder, { recursive: true });
     }
 
-    if (cmd == 'new') {
-        createNewTest(waveId, cb);
+    if (cmd == 'ab') {
+        createABTest(waveId, cb);
     }
     else if (cmd == 'demo') {
         createDemoTest(waveId, cb);
@@ -46,7 +98,7 @@ function createTest(cmd, waveId, cb)
     }
 }
 
-function createNewTest(waveId, cb)
+function createABTest(waveId, cb)
 {
     let waveFolder = 'lib/waves/' + waveId;
     // config.yml
@@ -184,7 +236,7 @@ function checkArgs(args, cb)
     }
 
     let paraName = keys[0];
-    if (paraName != 'new' && paraName != 'demo' && paraName != 'aa') {
+    if (paraName != 'ab' && paraName != 'demo' && paraName != 'aa') {
         setTimeout(usage);
         cb();
         return false;
@@ -207,7 +259,7 @@ function usage()
 {
     console.warn(`${colorRed}%s${colorReset}`, 'Invalid parameters.');
     console.warn('Usage:');
-    console.warn('  gulp new --new {{wave id}}');
+    console.warn('  gulp new --ab {{wave id}}');
     console.warn('  gulp new --demo {{wave id}}');
     console.warn('  gulp new --aa {{wave id}}');
 }
