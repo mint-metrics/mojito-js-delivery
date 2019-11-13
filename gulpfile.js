@@ -5,11 +5,13 @@ const gulp = require('gulp'),
     awspublish = require('gulp-awspublish'),
     yaml = require('gulp-yaml'),
     addsrc = require('gulp-add-src'),
-    modularBuild = require('./modular-build'),
-    mochaPhantomJS = require('./mocha-phantomjs'),
+    modularBuild = require('./scripts/modular-build'),
+    mochaPhantomJS = require('./scripts/mocha-phantomjs'),
     fs = require('fs'),
     through = require('through2'),
-    zlib = require('zlib');
+    zlib = require('zlib'),
+    newCli = require('./scripts/cli-new'),
+    setCli = require('./scripts/cli-set');
     
 // Check whether config exists & create it if not.
 for (const file of ['config.js', 'lib/shared-code.js'])
@@ -20,9 +22,8 @@ for (const file of ['config.js', 'lib/shared-code.js'])
 }
 const config = require('./config');
 
-
 // parsing extra arguments from process.argv
-const getCLIArgs = () =>
+const getCLIArgs = (defaultNull) =>
 {
     let argList = process.argv;
     let args = {}, i, opt, thisOpt, curOpt;
@@ -44,7 +45,7 @@ const getCLIArgs = () =>
         {
             // argument name
             curOpt = opt;
-            args[curOpt] = true;
+            args[curOpt] = defaultNull?null:true;
         }
     }
 
@@ -89,41 +90,41 @@ function scripts()
                 if (activeTestCount)
                 {
                     console.log(
-                        '%s' + colorCyan + '%s' + colorReset + '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        `%s${colorCyan}%s${colorReset}%s${colorCyan}%s${colorReset}%s`,
                         'Mojito container built with ', activeTestCount, ' tests (', gzippedSize, '):');
     
                     if (modularResult.liveList.length)
                     {
                         console.log(
-                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            `%s${colorCyan}%s${colorReset}%s`,
                             '  Live (', modularResult.liveList.length, ') - ' + modularResult.liveList.join(' '));
                     }
     
                     if (modularResult.stagingList.length)
                     {
                         console.log(
-                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            `%s${colorCyan}%s${colorReset}%s`,
                             '  Staging (', modularResult.stagingList.length, ') - ' + modularResult.stagingList.join(' '));
                     }
 
                     if (modularResult.divertList.length)
                     {
                         console.log(
-                            '%s' + colorCyan + '%s' + colorReset + '%s', 
+                            `%s${colorCyan}%s${colorReset}%s`,
                             '  Diverted (', modularResult.divertList.length, ') - ' + modularResult.divertList.join(' '));
                     }
                 }
                 else
                 {
                     console.log(
-                        '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        `%s${colorCyan}%s${colorReset}%s`,
                         'Mojito container built (', gzippedSize, ')');
                 }
     
                 if (modularResult.inactive)
                 {
                     console.log(
-                        '%s' + colorCyan + '%s' + colorReset + '%s', 
+                        `%s${colorCyan}%s${colorReset}%s`,
                         '  Inactive (', modularResult.inactive, ')');
                 }
             });
@@ -174,7 +175,19 @@ function publish()
     );
 }
 
+function cliNew(cb)
+{
+    newCli(getCLIArgs(true), cb);
+}
+
+function cliSet(cb)
+{
+    setCli(getCLIArgs(true), cb);
+}
+
 exports.test = test;
 exports.scripts = scripts;
 exports.publish = publish;
 exports.default = scripts;
+exports.new = cliNew;
+exports.set = cliSet;

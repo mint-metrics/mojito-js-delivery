@@ -7,6 +7,7 @@ const fs = require("fs");
 const PLUGIN_NAME = 'mojito-modular-build';
 
 // Mojito building - building test objects based on config.yml
+let waves = {};
 module.exports = function (buildResult)
 {
 	return through.obj(function (file, enc, callback)
@@ -42,6 +43,14 @@ function buildTest(file, stream, buildResult)
 			buildResult.inactive ++;
 			return Buffer.from('');
 		}
+
+		// prevent duplicated waves
+		if (waves[testObject.id])
+		{
+			throw new Error(`Mojito Building - Duplicated waves "${testObject.id}" found in ${waves[testObject.id]} and ${dirname}${path.sep}config.yml`);
+		}
+
+		waves[testObject.id] = `${dirname}${path.sep}config.yml`;
 
 		if (testObject.state == 'live')
 		{
