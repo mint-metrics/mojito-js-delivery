@@ -20,8 +20,13 @@ module.exports = function (args, cb)
 function testExists(waveId, cb)
 {
     // lib/waves/{wave id} folder must be empty
-    let baseFolder = 'lib/waves/',
-        waveFolder = baseFolder + waveId,
+    let baseFolder = 'lib/waves/';
+    if (!fs.existsSync(baseFolder))
+    {
+        return false;
+    }
+
+    let waveFolder = baseFolder + waveId,
         folderExist = fs.existsSync(waveFolder);
     if (folderExist && fs.readdirSync(waveFolder).length) {
         setTimeout(function ()
