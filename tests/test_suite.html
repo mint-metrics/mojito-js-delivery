@@ -404,6 +404,71 @@
             w6CssInjected.should.equal(true);
         });
 
+        // decisionAdapter
+        var w7DecisionAdapterCalled = false;
+        Mojito.options.decisionAdapter = function(testObject)
+        {
+            w7DecisionAdapterCalled = true;
+            return 0.8;
+        };
+
+        Mojito.addTest({
+            id: 'w7',
+            state: 'live',
+            name: 'unit_test_decision_adapter',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment'
+                }
+            }
+        });
+
+        it('Mojito.options.decisionAdapter was called', function () {
+            w7DecisionAdapterCalled.should.equal(true);
+        });
+
+        var w8ControlChosenByDecisionAdapter = false;
+        Mojito.options.decisionAdapter = function(testObject)
+        {
+            if (testObject.decisionCnt === 0)
+                return 0.8;
+            
+            return 0.2; // to let Control chosen
+        };
+
+        Mojito.addTest({
+            id: 'w8',
+            state: 'live',
+            name: 'unit_test_decision_adapter',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function()
+                    {
+                        w8ControlChosenByDecisionAdapter = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment'
+                }
+            }
+        });
+
+        it('Choose a specific recipe by decisionAdapter', function () {
+            w8ControlChosenByDecisionAdapter.should.equal(true);
+        });
+
     });
 
     describe('Mojito utils functions', function () {
