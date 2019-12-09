@@ -187,6 +187,7 @@ function cliSet(cb)
 
 exports.test = test;
 exports.build = build;
+exports.scripts = build;
 exports.publish = publish;
 exports.default = build;
 exports.new = cliNew;
