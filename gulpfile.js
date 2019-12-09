@@ -60,7 +60,7 @@ function test()
     );
 }
 
-function scripts()
+function build()
 {
     del(['dist/assets/js']);
     let containerName = config.containerName;
@@ -186,8 +186,9 @@ function cliSet(cb)
 }
 
 exports.test = test;
-exports.scripts = scripts;
+exports.build = build;
+exports.scripts = build;
 exports.publish = publish;
-exports.default = scripts;
+exports.default = build;
 exports.new = cliNew;
 exports.set = cliSet;
