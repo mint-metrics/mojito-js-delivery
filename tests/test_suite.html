@@ -471,6 +471,44 @@
             w8ControlChosenByDecisionAdapter.should.equal(true);
         });
 
+        var w9ControlChosenByDecisionAdapter = false;
+        Mojito.addTest({
+            id: 'w9',
+            state: 'live',
+            name: 'unit_test_decision_adapter',
+            sampleRate: 1,
+            options: {
+                decisionAdapter: function(testObject)
+                {
+                    if (testObject.decisionIdx === 0)
+                        return 0.8;
+                    
+                    return 0.9; // to let Control chosen
+                }
+            },
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    sampleRate: 0.98,
+                    js: function()
+                    {
+                        w9ControlChosenByDecisionAdapter = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    sampleRate: 0.02
+                }
+            }
+        });
+
+        it('Recipes with sampleRate', function () {
+            w9ControlChosenByDecisionAdapter.should.equal(true);
+        });
+
     });
 
     describe('Mojito utils functions', function () {
