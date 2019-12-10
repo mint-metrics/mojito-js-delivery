@@ -406,17 +406,18 @@
 
         // decisionAdapter
         var w7DecisionAdapterCalled = false;
-        Mojito.options.decisionAdapter = function(testObject)
-        {
-            w7DecisionAdapterCalled = true;
-            return 0.8;
-        };
-
         Mojito.addTest({
             id: 'w7',
             state: 'live',
             name: 'unit_test_decision_adapter',
             sampleRate: 1,
+            options: {
+                decisionAdapter: function(testObject)
+                {
+                    w7DecisionAdapterCalled = true;
+                    return 0.8;
+                }
+            },
             trigger: function (e) {
                 e.activate();
             },
@@ -435,19 +436,20 @@
         });
 
         var w8ControlChosenByDecisionAdapter = false;
-        Mojito.options.decisionAdapter = function(testObject)
-        {
-            if (testObject.decisionCnt === 0)
-                return 0.8;
-            
-            return 0.2; // to let Control chosen
-        };
-
         Mojito.addTest({
             id: 'w8',
             state: 'live',
             name: 'unit_test_decision_adapter',
             sampleRate: 1,
+            options: {
+                decisionAdapter: function(testObject)
+                {
+                    if (testObject.decisionIdx === 0)
+                        return 0.8;
+                    
+                    return 0.2; // to let Control chosen
+                }
+            },
             trigger: function (e) {
                 e.activate();
             },
