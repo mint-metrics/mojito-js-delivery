@@ -1,5 +1,3 @@
 dist
 node_modules
 test.log
-config.js
-lib/shared-code.js
