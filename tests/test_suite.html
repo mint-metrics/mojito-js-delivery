@@ -508,38 +508,6 @@
 
 
 
-        // Preview mode buckets users into experiment
-        var w9PreviewModeWorking = false;
-        window.history.pushState(null,"Preview mode for W9", document.location.pathname + '?mojito_w9=1');
-        Mojito.addTest({
-            id: 'w9',
-            state: 'staging',
-            name: 'preview_mode_test',
-            sampleRate: 1,
-            trigger: function (e) {
-                e.activate();
-            },
-            recipes: {
-                '0': {
-                    name: 'control'
-                },
-                '1': {
-                    name: 'treatment',
-                    js: function()
-                    {
-                        w9PreviewModeWorking = true;
-                    }
-                }
-            }
-        });
-
-        it('Preview mode is working', function () {
-            w9PreviewModeWorking.should.equal(true);
-        });
-
-
-
-
         // Exclude users if their chosen recipe no longer exists (we set it to recipe 2, here)
         var w10ExcludeByMissingRecipe = false;
         Mojito.Cookies.set('_mojito_w10','1.2');
@@ -597,6 +565,40 @@
         it('Activate tests with recipes\' sampleRates set', function () {
             w11FailWithBadRecipeSample.should.equal(true);
         });
+
+
+
+
+        // Preview mode buckets users into experiment
+        var w12PreviewModeWorking = false;
+        window.history.pushState(null,"Preview mode for W12", document.location.pathname + '?mojito_w12=1');
+        Mojito.addTest({
+            id: 'w12',
+            state: 'staging',
+            name: 'preview_mode_test',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w12PreviewModeWorking = true;
+                    }
+                }
+            }
+        });
+
+        it('Preview mode is working', function () {
+            w12PreviewModeWorking.should.equal(true);
+        });
+
+
 
     });
 
