@@ -131,6 +131,40 @@
         });
 
 
+        // Tests should only activate once
+        var w1DoubleActivation = false,
+            w1DoubleActivationIdx = 0,
+            doubleActivation = {
+                id: 'w1',
+                state: 'live',
+                name: 'double_activation_protection',
+                sampleRate: 1,
+                trigger: function (e) {
+                    e.activate();
+                },
+                recipes: {
+                    '0': {
+                        name: 'control',
+                        js: function () {
+                            w1DoubleActivationIdx++;
+                        }
+                    },
+                    '1': {
+                        name: 'treatment',
+                        js: function () {
+                            w1DoubleActivationIdx++;
+                        }
+                    }
+                }
+            };
+        Mojito.addTest(doubleActivation);
+        Mojito.getTest('w1').activate();
+        w1DoubleActivation = (w1DoubleActivationIdx === 1);
+        it('Test object can only be activated once', function () {
+            w1DoubleActivation.should.equal(true);
+        });
+
+
         // Test should not activate when state is not live
         var w1Staging = false;
         Mojito.addTest({
@@ -470,6 +504,101 @@
         it('Choose a specific recipe by decisionAdapter', function () {
             w8ControlChosenByDecisionAdapter.should.equal(true);
         });
+
+
+
+
+        // Exclude users if their chosen recipe no longer exists (we set it to recipe 2, here)
+        var w10ExcludeByMissingRecipe = false;
+        Mojito.Cookies.set('_mojito_w10','1.2');
+        Mojito.addTest({
+            id: 'w10',
+            state: 'live',
+            name: 'missing_recipe_exclusion',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment'
+                }
+            }
+        });
+        w10ExcludeByMissingRecipe = Mojito.Cookies.get('_mojito_w10').split('.')[0] === '0';
+
+        it('User excluded by due to chosen recipe missing', function () {
+            w10ExcludeByMissingRecipe.should.equal(true);
+        });
+
+
+
+
+        // Activate with valid Recipe Sample Rates set
+        Mojito.addTest({
+            id: 'w11',
+            state: 'live',
+            name: 'improperly_set_sample_rates',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment1',
+                    sampleRate: 0.5
+                },
+                '2': {
+                    name: 'treatment2',
+                    sampleRate: 0.5
+                }
+            }
+        });
+        var w11FailWithBadRecipeSample = !!Mojito.getTest('w11').activated;
+
+        it('Activate tests with recipes\' sampleRates set', function () {
+            w11FailWithBadRecipeSample.should.equal(true);
+        });
+
+
+
+
+        // Preview mode buckets users into experiment
+        var w12PreviewModeWorking = false;
+        window.history.pushState(null,"Preview mode for W12", document.location.pathname + '?mojito_w12=1');
+        Mojito.addTest({
+            id: 'w12',
+            state: 'staging',
+            name: 'preview_mode_test',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w12PreviewModeWorking = true;
+                    }
+                }
+            }
+        });
+
+        it('Preview mode is working', function () {
+            w12PreviewModeWorking.should.equal(true);
+        });
+
+
 
     });
 
