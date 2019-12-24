@@ -598,7 +598,90 @@
             w12PreviewModeWorking.should.equal(true);
         });
 
+        var w13T1Chosen = false,
+            w13T3Chosen = false,
+            w13T5Chosen = false;
 
+        w13Test = {
+            id: 'w13',
+            state: 'live',
+            name: 'recipe_simple_rate_test',
+            sampleRate: 1,
+            options: {},
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '1': {
+                    name: 'treatment1',
+                    sampleRate: 0.4,
+                    js: function()
+                    {
+                        w13T1Chosen = true;
+                    }
+                },
+                '2': {
+                    name: 'treatment2',
+                    sampleRate: 0.1
+                },
+                '3': {
+                    name: 'treatment3',
+                    sampleRate: 0.1,
+                    js: function()
+                    {
+                        w13T3Chosen = true;
+                    }
+                },
+                '4': {
+                    name: 'treatment4',
+                    sampleRate: 0.2
+                },
+                '5': {
+                    name: 'treatment5',
+                    sampleRate: 0.2,
+                    js: function()
+                    {
+                        w13T5Chosen = true;
+                    }
+                }
+            }
+        };
+
+        // T3 should be chosen
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.15; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        // T5 should be chosen
+        w13Test.id = 'w13-2';
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.55; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        // T1 should be chosen
+        w13Test.id = 'w13-3';
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.65; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        it('Recipes with different and same sample rates', function () {
+            w13T1Chosen.should.equal(true)&&w13T3Chosen.should.equal(true)&&w13T5Chosen.should.equal(true);
+        });
 
     });
 
@@ -608,14 +691,14 @@
         testDiv.className = 'observe-existing';
         document.body.appendChild(testDiv);
 
-        it('observeSelector on existing elements', function () {
+        it('ObserveSelector on existing elements', function () {
             Mojito.utils.observeSelector('.observe-existing', function (element)
             {
                 element.id.should.equal('observe-existing');
             });
         });
 
-        it('observeSelector on dynamic elements', function (done) {
+        it('ObserveSelector on dynamic elements', function (done) {
             Mojito.utils.observeSelector('.observe-dynamic', function ()
             {
                 done();
@@ -627,7 +710,7 @@
             document.body.appendChild(testDiv);
         });
 
-        it('observeSelector timeout', function (done) {
+        it('ObserveSelector timeout', function (done) {
             Mojito.utils.observeSelector('.timeout', function ()
             {
                 done('error');
@@ -641,14 +724,14 @@
             });
         });
 
-        it('waitForElement on existing elements', function () {
+        it('WaitForElement on existing elements', function () {
             Mojito.utils.waitForElement('.observe-existing', function (element)
             {
                 element.id.should.equal('observe-existing');
             });
         });
 
-        it('waitForElement on dynamic elements', function (done) {
+        it('WaitForElement on dynamic elements', function (done) {
             Mojito.utils.observeSelector('.observe-dynamic-wait', function (element)
             {
                 done();
@@ -659,7 +742,7 @@
             document.body.appendChild(testDiv);
         });
 
-        it('waitUntil', function (done) {
+        it('WaitUntil', function (done) {
             var waitSignal = 0;
             Mojito.utils.waitUntil(function ()
             {
@@ -675,7 +758,7 @@
             }, 1000);
         });
 
-        it('waitUntil timeout', function (done) {
+        it('WaitUntil timeout', function (done) {
             var waitSignal = 0;
             var waitUntilState = 0;
             Mojito.utils.waitUntil(function ()
@@ -695,7 +778,7 @@
             }, 1500);
         });
 
-        it('watchElement changes', function (done) {
+        it('WatchElement changes', function (done) {
             testDiv = document.createElement('div');
             testDiv.className = 'watch-changes';
             document.body.appendChild(testDiv);
