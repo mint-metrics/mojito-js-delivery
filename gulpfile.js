@@ -10,6 +10,7 @@ const gulp = require('gulp'),
     fs = require('fs'),
     through = require('through2'),
     zlib = require('zlib'),
+    babel = require('gulp-babel'),
     newCli = require('./scripts/cli-new'),
     setCli = require('./scripts/cli-set');
     
@@ -73,6 +74,7 @@ function build()
         .pipe(addsrc.append(['lib/waves/**/test-object.js']))
         .pipe(addsrc.prepend(['license.txt', 'lib/mojito.js', 'lib/shared-code.js']))
         .pipe(concat(containerName + '.pretty.js'))
+        //.pipe(babel({presets: [['@babel/preset-env', { "modules": false, exclude:['@babel/plugin-transform-typeof-symbol'] }]]}))
         .pipe(gulp.dest('dist/assets/js'))
         .pipe(uglify())
         .pipe(addsrc.prepend(['license.txt']))
