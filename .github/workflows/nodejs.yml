@@ -1,0 +1,29 @@
+name: Mojito JS Delivery CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Build & test a Mojito container
+      run: |
+        npm install
+        npm install -g gulp-cli
+        gulp build
+        gulp new --aa a1
+        gulp set --live a1
+        gulp test
+      env:
+        CI: true
