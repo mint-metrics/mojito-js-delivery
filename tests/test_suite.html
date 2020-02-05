@@ -683,6 +683,65 @@
             w13T1Chosen.should.equal(true)&&w13T3Chosen.should.equal(true)&&w13T5Chosen.should.equal(true);
         });
 
+        // Prevent test trigger errors from stopping later test objects from running
+        var w14Running = false;
+        var w15Running = false;
+        Mojito.addTest({
+            id: 'w14',
+            state: 'live',
+            name: 'trigger_error_test1',
+            sampleRate: 1,
+            trigger: function (e) {
+                throw new Error('error');
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function()
+                    {
+                        w14Running = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w14Running = true;
+                    }
+                }
+            }
+        });
+
+        Mojito.addTest({
+            id: 'w15',
+            state: 'live',
+            name: 'trigger_error_test2',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function()
+                    {
+                        w15Running = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w15Running = true;
+                    }
+                }
+            }
+        });
+
+        it('Prevent test trigger errors from stopping later test objects from running', function () {
+            w14Running.should.equal(false)&&w15Running.should.equal(true);
+        });
+
     });
 
     describe('Mojito utils functions', function () {
