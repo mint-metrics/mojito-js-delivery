@@ -838,16 +838,37 @@
         });
 
         it('WatchElement changes', function (done) {
-            testDiv = document.createElement('div');
+            var testDiv = document.createElement('div');
             testDiv.className = 'watch-changes';
             document.body.appendChild(testDiv);
 
+            var testDiv2 = document.createElement('div');
+            testDiv2.className = 'watch-changes2';
+            document.body.appendChild(testDiv2);
+
+            var testDivChanged = false,
+                testDiv2Changed = false;
+
             Mojito.utils.watchElement('.watch-changes', function (mutationsList)
             {
-                done();
+                testDivChanged = true;
+                if (testDivChanged&&testDiv2Changed)
+                {
+                    done();
+                }
+            });
+
+            Mojito.utils.watchElement('.watch-changes2', function (mutationsList)
+            {
+                testDiv2Changed = true;
+                if (testDivChanged&&testDiv2Changed)
+                {
+                    done();
+                }
             });
 
             testDiv.innerHTML = 'changed';
+            testDiv2.innerHTML = 'changed';
         });
 
     });
