@@ -131,6 +131,40 @@
         });
 
 
+        // Tests should only activate once
+        var w1DoubleActivation = false,
+            w1DoubleActivationIdx = 0,
+            doubleActivation = {
+                id: 'w1',
+                state: 'live',
+                name: 'double_activation_protection',
+                sampleRate: 1,
+                trigger: function (e) {
+                    e.activate();
+                },
+                recipes: {
+                    '0': {
+                        name: 'control',
+                        js: function () {
+                            w1DoubleActivationIdx++;
+                        }
+                    },
+                    '1': {
+                        name: 'treatment',
+                        js: function () {
+                            w1DoubleActivationIdx++;
+                        }
+                    }
+                }
+            };
+        Mojito.addTest(doubleActivation);
+        Mojito.getTest('w1').activate();
+        w1DoubleActivation = (w1DoubleActivationIdx === 1);
+        it('Test object can only be activated once', function () {
+            w1DoubleActivation.should.equal(true);
+        });
+
+
         // Test should not activate when state is not live
         var w1Staging = false;
         Mojito.addTest({
@@ -471,6 +505,243 @@
             w8ControlChosenByDecisionAdapter.should.equal(true);
         });
 
+
+
+
+        // Exclude users if their chosen recipe no longer exists (we set it to recipe 2, here)
+        var w10ExcludeByMissingRecipe = false;
+        Mojito.Cookies.set('_mojito_w10','1.2');
+        Mojito.addTest({
+            id: 'w10',
+            state: 'live',
+            name: 'missing_recipe_exclusion',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment'
+                }
+            }
+        });
+        w10ExcludeByMissingRecipe = Mojito.Cookies.get('_mojito_w10').split('.')[0] === '0';
+
+        it('User excluded by due to chosen recipe missing', function () {
+            w10ExcludeByMissingRecipe.should.equal(true);
+        });
+
+
+
+
+        // Activate with valid Recipe Sample Rates set
+        Mojito.addTest({
+            id: 'w11',
+            state: 'live',
+            name: 'improperly_set_sample_rates',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment1',
+                    sampleRate: 0.5
+                },
+                '2': {
+                    name: 'treatment2',
+                    sampleRate: 0.5
+                }
+            }
+        });
+        var w11FailWithBadRecipeSample = !!Mojito.getTest('w11').activated;
+
+        it('Activate tests with recipes\' sampleRates set', function () {
+            w11FailWithBadRecipeSample.should.equal(true);
+        });
+
+
+
+
+        // Preview mode buckets users into experiment
+        var w12PreviewModeWorking = false;
+        window.history.pushState(null,"Preview mode for W12", document.location.pathname + '?mojito_w12=1');
+        Mojito.addTest({
+            id: 'w12',
+            state: 'staging',
+            name: 'preview_mode_test',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control'
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w12PreviewModeWorking = true;
+                    }
+                }
+            }
+        });
+
+        it('Preview mode is working', function () {
+            w12PreviewModeWorking.should.equal(true);
+        });
+
+        var w13T1Chosen = false,
+            w13T3Chosen = false,
+            w13T5Chosen = false;
+
+        w13Test = {
+            id: 'w13',
+            state: 'live',
+            name: 'recipe_simple_rate_test',
+            sampleRate: 1,
+            options: {},
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '1': {
+                    name: 'treatment1',
+                    sampleRate: 0.4,
+                    js: function()
+                    {
+                        w13T1Chosen = true;
+                    }
+                },
+                '2': {
+                    name: 'treatment2',
+                    sampleRate: 0.1
+                },
+                '3': {
+                    name: 'treatment3',
+                    sampleRate: 0.1,
+                    js: function()
+                    {
+                        w13T3Chosen = true;
+                    }
+                },
+                '4': {
+                    name: 'treatment4',
+                    sampleRate: 0.2
+                },
+                '5': {
+                    name: 'treatment5',
+                    sampleRate: 0.2,
+                    js: function()
+                    {
+                        w13T5Chosen = true;
+                    }
+                }
+            }
+        };
+
+        // T3 should be chosen
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.15; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        // T5 should be chosen
+        w13Test.id = 'w13-2';
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.55; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        // T1 should be chosen
+        w13Test.id = 'w13-3';
+        w13Test.options.decisionAdapter = function (testObject) {
+            if (testObject.decisionIdx === 0)
+                return 0.8;
+
+            return 0.65; 
+        };
+
+        Mojito.addTest(w13Test);
+
+        it('Recipes with different and same sample rates', function () {
+            w13T1Chosen.should.equal(true)&&w13T3Chosen.should.equal(true)&&w13T5Chosen.should.equal(true);
+        });
+
+        // Prevent test trigger errors from stopping later test objects from running
+        var w14Running = false;
+        var w15Running = false;
+        Mojito.addTest({
+            id: 'w14',
+            state: 'live',
+            name: 'trigger_error_test1',
+            sampleRate: 1,
+            trigger: function (e) {
+                throw new Error('error');
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function()
+                    {
+                        w14Running = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w14Running = true;
+                    }
+                }
+            }
+        });
+
+        Mojito.addTest({
+            id: 'w15',
+            state: 'live',
+            name: 'trigger_error_test2',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function()
+                    {
+                        w15Running = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function()
+                    {
+                        w15Running = true;
+                    }
+                }
+            }
+        });
+
+        it('Prevent test trigger errors from stopping later test objects from running', function () {
+            w14Running.should.equal(false)&&w15Running.should.equal(true);
+        });
+
     });
 
     describe('Mojito utils functions', function () {
@@ -479,14 +750,14 @@
         testDiv.className = 'observe-existing';
         document.body.appendChild(testDiv);
 
-        it('observeSelector on existing elements', function () {
+        it('ObserveSelector on existing elements', function () {
             Mojito.utils.observeSelector('.observe-existing', function (element)
             {
                 element.id.should.equal('observe-existing');
             });
         });
 
-        it('observeSelector on dynamic elements', function (done) {
+        it('ObserveSelector on dynamic elements', function (done) {
             Mojito.utils.observeSelector('.observe-dynamic', function ()
             {
                 done();
@@ -498,7 +769,7 @@
             document.body.appendChild(testDiv);
         });
 
-        it('observeSelector timeout', function (done) {
+        it('ObserveSelector timeout', function (done) {
             Mojito.utils.observeSelector('.timeout', function ()
             {
                 done('error');
@@ -512,14 +783,14 @@
             });
         });
 
-        it('waitForElement on existing elements', function () {
+        it('WaitForElement on existing elements', function () {
             Mojito.utils.waitForElement('.observe-existing', function (element)
             {
                 element.id.should.equal('observe-existing');
             });
         });
 
-        it('waitForElement on dynamic elements', function (done) {
+        it('WaitForElement on dynamic elements', function (done) {
             Mojito.utils.observeSelector('.observe-dynamic-wait', function (element)
             {
                 done();
@@ -530,7 +801,7 @@
             document.body.appendChild(testDiv);
         });
 
-        it('waitUntil', function (done) {
+        it('WaitUntil', function (done) {
             var waitSignal = 0;
             Mojito.utils.waitUntil(function ()
             {
@@ -546,7 +817,7 @@
             }, 1000);
         });
 
-        it('waitUntil timeout', function (done) {
+        it('WaitUntil timeout', function (done) {
             var waitSignal = 0;
             var waitUntilState = 0;
             Mojito.utils.waitUntil(function ()
@@ -566,17 +837,38 @@
             }, 1500);
         });
 
-        it('watchElement changes', function (done) {
-            testDiv = document.createElement('div');
+        it('WatchElement changes', function (done) {
+            var testDiv = document.createElement('div');
             testDiv.className = 'watch-changes';
             document.body.appendChild(testDiv);
 
+            var testDiv2 = document.createElement('div');
+            testDiv2.className = 'watch-changes2';
+            document.body.appendChild(testDiv2);
+
+            var testDivChanged = false,
+                testDiv2Changed = false;
+
             Mojito.utils.watchElement('.watch-changes', function (mutationsList)
             {
-                done();
+                testDivChanged = true;
+                if (testDivChanged&&testDiv2Changed)
+                {
+                    done();
+                }
+            });
+
+            Mojito.utils.watchElement('.watch-changes2', function (mutationsList)
+            {
+                testDiv2Changed = true;
+                if (testDivChanged&&testDiv2Changed)
+                {
+                    done();
+                }
             });
 
             testDiv.innerHTML = 'changed';
+            testDiv2.innerHTML = 'changed';
         });
 
     });
