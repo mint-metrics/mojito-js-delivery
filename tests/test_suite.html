@@ -750,10 +750,23 @@
         testDiv.className = 'observe-existing';
         document.body.appendChild(testDiv);
 
-        it('ObserveSelector on existing elements', function () {
+        it('ObserveSelector on existing elements', function (done) {
             Mojito.utils.observeSelector('.observe-existing', function (element)
             {
-                element.id.should.equal('observe-existing');
+                if (element.id == 'observe-existing')
+                {
+                    done();
+                }
+            });
+        });
+
+        it('Multi observers on the same elements', function (done) {
+            Mojito.utils.observeSelector('.observe-existing', function (element)
+            {
+                if (element.id == 'observe-existing')
+                {
+                    done();
+                }
             });
         });
 
@@ -783,10 +796,13 @@
             });
         });
 
-        it('WaitForElement on existing elements', function () {
+        it('WaitForElement on existing elements', function (done) {
             Mojito.utils.waitForElement('.observe-existing', function (element)
             {
-                element.id.should.equal('observe-existing');
+                if (element.id == 'observe-existing')
+                {
+                    done();
+                }
             });
         });
 
