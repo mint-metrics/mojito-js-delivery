@@ -1,10 +1,10 @@
 {
   "name": "mojito-js-delivery",
-  "version": "0.1.0",
+  "version": "2.2.4",
   "description": "Utilities to build, launch and measure split tests. Part of the Mojito framework.",
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "^7.7.7",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "clean-css": "^4.2.3",
     "del": "^5.1.0",
     "gulp": "^4.0.2",
@@ -15,7 +15,7 @@
     "gulp-gzip": "^1.4.2",
     "gulp-uglify": "^3.0.2",
     "gulp-yaml": "^2.0.4",
-    "mocha": "^6.2.2",
+    "mocha": "^7.1.2",
     "mocha-phantomjs-core": "^2.1.2",
     "phantomjs-prebuilt": "^2.1.16",
     "plugin-error": "^1.0.1",
