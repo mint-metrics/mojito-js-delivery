@@ -52,6 +52,11 @@ function buildTest(file, stream, buildResult)
 
 		waves[testObject.id] = `${dirname}${path.sep}config.yml`;
 
+		// remove private data from publishing
+		if (testObject.private) {
+			delete testObject.private;
+		}
+
 		if (testObject.state == 'live')
 		{
 			if (testObject.divertTo != null)
