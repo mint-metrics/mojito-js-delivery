@@ -22,5 +22,7 @@
     "should": "^13.2.3",
     "through2": "^3.0.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "concurrent-transform": "^1.0.0"
+  }
 }

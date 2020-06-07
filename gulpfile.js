@@ -12,7 +12,8 @@ const gulp = require('gulp'),
     zlib = require('zlib'),
     babel = require('gulp-babel'),
     newCli = require('./scripts/cli-new'),
-    setCli = require('./scripts/cli-set');
+    setCli = require('./scripts/cli-set'),
+    parallelize = require('concurrent-transform');
     
 // Check whether config exists & create it if not.
 for (const file of ['config.js', 'lib/shared-code.js'])
@@ -171,8 +172,8 @@ function publish()
 
     return (
         gulp.src("dist/assets/js/*.js")
-            .pipe(awspublish.gzip())
-            .pipe(publisher.publish(headers, { force: true }))
+            .pipe(parallelize(awspublish.gzip(), 5))
+            .pipe(parallelize(publisher.publish(headers, { force: true }), 5))
             .pipe(awspublish.reporter())
     );
 }
