@@ -750,6 +750,16 @@
         testDiv.className = 'observe-existing';
         document.body.appendChild(testDiv);
 
+        it('domReady event fired', function (done) {
+            Mojito.utils.domReady(function (element)
+            {
+                if (document.getElementById('observe-existing'))
+                {
+                    done();
+                }
+            });
+        });
+
         it('ObserveSelector on existing elements', function (done) {
             Mojito.utils.observeSelector('.observe-existing', function (element)
             {
