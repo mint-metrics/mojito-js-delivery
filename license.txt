@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, Mint Metrics Pty Ltd All rights reserved. BSD 3-Clause License. https://github.com/mint-metrics/mojito/blob/master/LICENSE
+ * Copyright (c) 2021, Mint Metrics Pty Ltd All rights reserved. BSD 3-Clause License. https://github.com/mint-metrics/mojito/blob/master/LICENSE
  * Copyright (c) 2010, James Yu. https://github.com/jamesyu/cohorts/blob/master/LICENSE
  * Copyright (c) 2005-2017, JS Foundation All rights reserved. https://dojotoolkit.org/license.html
  * Copyright (c) 2011 Sebastian Tschan, https://blueimp.net
