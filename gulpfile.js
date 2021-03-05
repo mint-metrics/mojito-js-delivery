@@ -195,3 +195,4 @@ exports.publish = publish;
 exports.default = build;
 exports.new = cliNew;
 exports.set = cliSet;
+exports.refresh = gulp.series([build, publish]);
