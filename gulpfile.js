@@ -13,6 +13,7 @@ const gulp = require('gulp'),
     babel = require('gulp-babel'),
     newCli = require('./scripts/cli-new'),
     setCli = require('./scripts/cli-set'),
+    ssaCli = require('./scripts/cli-ssa'),
     parallelize = require('concurrent-transform');
     
 // Check whether config exists & create it if not.
@@ -67,6 +68,39 @@ function build()
     del(['dist/assets/js']);
     let containerName = config.containerName;
     let modularResult = {liveList: [], stagingList: [], divertList: [], inactive: 0};
+
+    // is there a nuke.lock file?
+    const fileName = 'nuke.lock';
+	if (fs.existsSync(fileName))
+    {
+        // generate the container without test objects
+        return (
+        gulp.src('license.txt')
+            .pipe(addsrc.append(['lib/mojito.js', 'lib/shared-code.js']))
+            .pipe(concat(containerName + '.pretty.js'))
+            .pipe(babel({presets: [['@babel/preset-env', { "modules": false, exclude:['@babel/plugin-transform-typeof-symbol'] }]]}))
+            .pipe(gulp.dest('dist/assets/js'))
+            .pipe(uglify())
+            .pipe(addsrc.prepend(['license.txt']))
+            .pipe(concat(containerName + '.js'))
+            .pipe(gulp.dest('dist/assets/js'))
+            .pipe(through.obj(function(file, enc, callback)
+            {
+                let gzippedSize = ((zlib.gzipSync(file.contents, {level: 9}).length)/1024).toFixed(2) + ' KB',
+                    colorCyan = '\x1b[36m',
+                    colorReset = '\x1b[0m';
+    
+                setTimeout(function(){
+                    console.log(
+                        `%s${colorCyan}%s${colorReset}%s`,
+                        'Mojito container built (', gzippedSize, ')');
+                });
+                
+                callback(null, file);
+            }))
+        );
+    }
+
     return (
     gulp.src('lib/waves/**/config.yml')
         .pipe(yaml())
@@ -188,6 +222,11 @@ function cliSet(cb)
     setCli(getCLIArgs(true), cb);
 }
 
+function cliSSA(cb)
+{
+    ssaCli(getCLIArgs(true), cb);
+}
+
 exports.test = test;
 exports.build = build;
 exports.scripts = build;
@@ -195,4 +234,5 @@ exports.publish = publish;
 exports.default = build;
 exports.new = cliNew;
 exports.set = cliSet;
+exports.ssa = cliSSA;
 exports.refresh = gulp.series([build, publish]);

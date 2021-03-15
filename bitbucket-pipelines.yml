@@ -1,6 +1,42 @@
 image: atlassian/default-image:2
 
 pipelines:
+  custom:
+    nuke:
+      - step:
+          name: Nuke the container
+          script:
+            - echo "" >> nuke.lock
+            - git add nuke.lock
+            - git commit --allow-empty -m "Adding the nuke.lock file."
+            - git push
+
+    restore:
+      - step:
+          name: restore the container
+          script:
+            - git rm --ignore-unmatch nuke.lock
+            - git commit --allow-empty -m "Deleting the nuke.lock file."
+            - git push
+
+    start-stop-archive-test:
+      - variables:
+          - name: WaveId
+          - name: State
+          - name: SampleRate
+          - name: RecipeToDivertTo
+      - step:
+          name: Change the state of a test
+          caches:
+            - node
+          script:
+            - npm install
+            - npm install -g gulp-cli
+            - gulp ssa --state $State --waveId $WaveId --traffic $SampleRate --recipe $RecipeToDivertTo
+            - git add --all
+            - git commit --allow-empty -m "Updating $WaveId test to $State"
+            - git push
+
   branches:
     master:
       - step:
@@ -13,16 +49,16 @@ pipelines:
             - npm install -g gulp-cli
             - gulp build
             - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
-      # - step:   # Uncomment to add Cloudfront Invalidation step
-      #     name: Invalidate Cloudfront objects
-      #     script:
-      #       - pipe: atlassian/aws-cloudfront-invalidate:0.1.3
-      #         variables:
-      #           AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
-      #           AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-      #           AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
-      #           DISTRIBUTION_ID: '$AWS_CF_DISTRIBUTION'
-      #           PATHS: '$AWS_CF_PATHS'
+      - step:
+          name: Invalidate Cloudfront objects
+          script:
+            - pipe: atlassian/aws-cloudfront-invalidate:0.4.1
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                DISTRIBUTION_ID: '$AWS_CF_DISTRIBUTION'
+                PATHS: '$AWS_CF_PATHS'
 
     development:
       - step:
