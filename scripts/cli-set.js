@@ -33,7 +33,7 @@ function setTestState(waveId, cmd, args, cb)
         {
             console.error(`${colorRed}%s${colorReset}`, `Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
         });
-        cb();
+        cb(new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`));
     }
 
     test.state = cmd;
@@ -50,7 +50,7 @@ function setTestState(waveId, cmd, args, cb)
                 {
                     console.error(`${colorRed}%s${colorReset}`, `Traffic must be in range (0, 1].`);
                 });
-                cb();
+                cb(new Error(`Traffic must be in range (0, 1].`));
 
                 return;
             }
@@ -81,7 +81,7 @@ function divertTest(waveId, recipe, cb)
         {
             console.error(`${colorRed}%s${colorReset}`, `Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
         });
-        cb();
+        cb(new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`));
         return;
     }
 
@@ -90,9 +90,9 @@ function divertTest(waveId, recipe, cb)
     {
         setTimeout(function ()
         {
-            console.error(`${colorRed}%s${colorReset}`, `Test must live.`);
+            console.error(`${colorRed}%s${colorReset}`, `Test must be live.`);
         });
-        cb();
+        cb(new Error(`Test must be live.`));
         return;
     }
 
@@ -109,7 +109,7 @@ function divertTest(waveId, recipe, cb)
         {
             console.error(`${colorRed}%s${colorReset}`, `The recipe ${recipe} doesn't exist.`);
         });
-        cb();
+        cb(new Error(`The recipe ${recipe} doesn't exist.`));
         return;
     }
 
@@ -130,51 +130,42 @@ function checkArgs(args, cb)
 
     if (cmd == 'divert' || cmd == 'live') {
         if (keys.length > 2) {
-            setTimeout(usage);
-            cb();
+            usage();
+            cb(new Error(`Invalid parameters.`));
             return false;
         }
     }
     else if (keys.length > 1) {
-        setTimeout(usage);
-        cb();
+        usage();
+        cb(new Error(`Invalid parameters.`));
         return false;
     }
 
     if (cmd != 'live' && cmd != 'staging' && cmd != 'inactive' && cmd != 'divert') {
-        setTimeout(usage);
-        cb();
+        usage();
+        cb(new Error(`Invalid state: ${cmd}.`));
         return false;
     }
 
     // wave id validation
     let waveId = args[cmd];
     if (waveId == null || /[<>:"|?*]/.test(waveId)) {
-        setTimeout(function ()
-        {
-            console.warn(`${colorRed}%s${colorReset}`, 'Please specify an valid wave id.');
-        });
-        cb();
+        console.warn(`${colorRed}%s${colorReset}`, 'Please specify an valid wave id.');
+        cb(new Error(`Please specify an valid wave id.`));
         return false;
     }
 
     // wave existence
     if (!fs.existsSync(`lib/waves/${waveId}/config.yml`)) {
-        setTimeout(function ()
-        {
-            console.warn(`${colorRed}%s${colorReset}`, `Wave id ${waveId} doesn't exist.`);
-        });
-        cb();
+        console.warn(`${colorRed}%s${colorReset}`, `Wave id ${waveId} doesn't exist.`);
+        cb(new Error(`Wave id ${waveId} doesn't exist.`));
         return false;
     }
 
     // divert recipe
     if (cmd == 'divert' && args['recipe'] == null) {
-        setTimeout(function ()
-        {
-            console.warn(`${colorRed}%s${colorReset}`, 'Please specify a recipe id.');
-        });
-        cb();
+        console.warn(`${colorRed}%s${colorReset}`, 'Please specify a recipe id.');
+        cb(new Error(`Please specify a recipe id.`));
         return false;
     }
 
