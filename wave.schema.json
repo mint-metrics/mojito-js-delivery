@@ -69,7 +69,8 @@
                             "maximum": 1
                         }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "required": ["name"]
                 }
             },
             "additionalProperties": false
@@ -116,9 +117,6 @@
                 "recipes": {
                     "patternProperties": {
                         "^[a-zA-Z0-9]+$": {
-                            "properties": {
-                                "sampleRate": {}
-                            },
                             "required": ["sampleRate"]
                         }
                     }
