@@ -110,5 +110,33 @@
         }
     },
     "required": ["id", "name", "recipes", "state", "sampleRate", "trigger"],
-    "additionalProperties": true
+    "additionalProperties": true,
+    "oneOf": [{
+            "properties": {
+                "recipes": {
+                    "patternProperties": {
+                        "^[a-zA-Z0-9]+$": {
+                            "properties": {
+                                "sampleRate": {}
+                            },
+                            "required": ["sampleRate"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "properties": {
+                "recipes": {
+                    "patternProperties": {
+                        "^[a-zA-Z0-9]+$": {
+                            "not": {
+                                "required": ["sampleRate"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
 }
