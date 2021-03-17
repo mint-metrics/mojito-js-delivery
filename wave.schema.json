@@ -69,7 +69,8 @@
                             "maximum": 1
                         }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "required": ["name"]
                 }
             },
             "additionalProperties": false
@@ -110,5 +111,30 @@
         }
     },
     "required": ["id", "name", "recipes", "state", "sampleRate", "trigger"],
-    "additionalProperties": true
+    "additionalProperties": true,
+    "oneOf": [{
+            "properties": {
+                "recipes": {
+                    "patternProperties": {
+                        "^[a-zA-Z0-9]+$": {
+                            "required": ["sampleRate"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "properties": {
+                "recipes": {
+                    "patternProperties": {
+                        "^[a-zA-Z0-9]+$": {
+                            "not": {
+                                "required": ["sampleRate"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
 }
