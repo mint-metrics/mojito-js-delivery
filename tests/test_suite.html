@@ -766,11 +766,12 @@
                 }
             });
         } catch(e) {
-            it('Recipe-level sampleRate property must be defined for all recipes if it is being used', function () {
-                w16Activated.should.equal(false);
-            });
+            
         }
 
+        it('Recipe-level sampleRate property must be defined for all recipes if it is being used', function () {
+            w16Activated.should.equal(false);
+        });
     });
 
     describe('Mojito utils functions', function () {
