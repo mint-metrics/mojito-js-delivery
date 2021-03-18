@@ -548,7 +548,8 @@
             },
             recipes: {
                 '0': {
-                    name: 'control'
+                    name: 'control',
+                    sampleRate: 0
                 },
                 '1': {
                     name: 'treatment1',
@@ -742,6 +743,35 @@
             w14Running.should.equal(false)&&w15Running.should.equal(true);
         });
 
+        // Recipe-level sampleRate property must be defined for all recipes if it is being used
+        var w16Activated = false;
+        try {
+            Mojito.addTest({
+                id: 'w16',
+                state: 'staging',
+                name: 'recipe_level_sampleRate',
+                sampleRate: 1,
+                trigger: function (e) {
+                    w16Activated = true;
+                    e.activate();
+                },
+                recipes: {
+                    '0': {
+                        name: 'control',
+                        sampleRate: 0.5
+                    },
+                    '1': {
+                        name: 'treatment'
+                    }
+                }
+            });
+        } catch(e) {
+            
+        }
+
+        it('Tests fail when recipe-level sample rates are not set for all recipes', function () {
+            w16Activated.should.equal(false);
+        });
     });
 
     describe('Mojito utils functions', function () {
