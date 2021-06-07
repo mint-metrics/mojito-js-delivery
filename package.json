@@ -3,9 +3,9 @@
   "version": "2.3.1",
   "description": "Utilities to build, launch and measure split tests. Part of the Mojito framework.",
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
-    "clean-css": "^4.2.3",
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
+    "clean-css": "^5.1.2",
     "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-add-src": "^1.0.0",
@@ -20,7 +20,7 @@
     "phantomjs-prebuilt": "^2.1.16",
     "plugin-error": "^1.0.1",
     "should": "^13.2.3",
-    "through2": "^3.0.2"
+    "through2": "^4.0.2"
   },
   "dependencies": {
     "concurrent-transform": "^1.0.0"
