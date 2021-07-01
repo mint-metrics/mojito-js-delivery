@@ -127,14 +127,14 @@ function createABTest(waveId, cb)
     fs.writeFileSync(waveFolder + '/config.yml', yaml.dump(test));
     // recipe js
     let content =
-        `function treatment(test) {
+        `function treatment (test) {
     console.log('Test id: ' + test.options.id, ', name: ' + test.options.name, ', chosen recipe: ' + test.chosenRecipe.id);
 }`;
     fs.writeFileSync(waveFolder + '/1.js', content);
 
     // trigger
     content =
-        `function trigger(test) {
+        `function trigger (test) {
     Mojito.utils.domReady(test.activate);
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
@@ -171,7 +171,7 @@ function createDemoTest(waveId, cb)
     fs.writeFileSync(waveFolder + '/config.yml', yaml.dump(test));
     // recipe js
     let content =
-        `function treatment(test) {
+        `function treatment (test) {
     console.log('Test id: ' + test.options.id, ', name: ' + test.options.name, ', chosen recipe: ' + test.chosenRecipe.id);
 }`;
     fs.writeFileSync(waveFolder + '/1.js', content);
@@ -184,7 +184,7 @@ function createDemoTest(waveId, cb)
 
     // trigger
     content =
-        `function trigger(test) {
+        `function trigger (test) {
     Mojito.utils.domReady(test.activate);
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
@@ -219,8 +219,8 @@ function createAATest(waveId, cb)
     fs.writeFileSync(waveFolder + '/config.yml', yaml.dump(test));
     // trigger
     let content =
-        `function trigger(test) {
-    Mojito.utils.domReady(test.activate);
+        `function trigger (test) {
+    test.activate();
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
 
