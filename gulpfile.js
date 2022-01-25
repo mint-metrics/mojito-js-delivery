@@ -6,7 +6,6 @@ const gulp = require('gulp'),
     yaml = require('gulp-yaml'),
     addsrc = require('gulp-add-src'),
     modularBuild = require('./scripts/modular-build'),
-    mochaPhantomJS = require('./scripts/mocha-phantomjs'),
     fs = require('fs'),
     through = require('through2'),
     zlib = require('zlib'),
@@ -14,6 +13,7 @@ const gulp = require('gulp'),
     newCli = require('./scripts/cli-new'),
     setCli = require('./scripts/cli-set'),
     ssaCli = require('./scripts/cli-ssa'),
+    runTests = require('./scripts/run-tests')
     parallelize = require('concurrent-transform');
     
 // Check whether config exists & create it if not.
@@ -57,10 +57,7 @@ const getCLIArgs = (defaultNull) =>
 
 function test()
 {
-    return (
-        gulp.src('tests/test_suite.html')
-            .pipe(mochaPhantomJS({reporter: 'spec', dump: 'test.log'}))
-    );
+    return runTests();
 }
 
 function build()

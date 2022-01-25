@@ -929,12 +929,42 @@
 
     });
 
-    if (window.mochaPhantomJS) {
-        mochaPhantomJS.run();
-    }
-    else {
-        mocha.run();
-    }
+    mocha.run()
+         .on('pass', function(test) {
+            var event = new CustomEvent('testResult', {
+                detail: {
+                    type: 'pass',
+                    title: test.title,
+                    suite: test.parent.title,
+                    duration: test.duration
+                }
+            });
+            document.dispatchEvent(event);
+        })
+        .on('fail', function(test, error) {
+            var event = new CustomEvent('testResult', {
+                detail: {
+                    type: 'fail',
+                    title: test.title,
+                    suite: test.parent.title,
+                    duration: test.duration,
+                    error: {
+                        message: error.message,
+                        stack: error.stack
+                    }
+                }
+            });
+            document.dispatchEvent(event);
+        })
+        .on('end', function(){
+            var event = new CustomEvent('testResult', {
+                detail: {
+                    type: 'end'
+                }
+            });
+            document.dispatchEvent(event);
+            window.testCompleted = true;
+        });
 
 </script>
 </body>
