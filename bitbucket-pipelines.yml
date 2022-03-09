@@ -31,6 +31,7 @@ pipelines:
             - node
           script:
             - npm ci
+            - npm -g config set user root
             - npm install -g gulp-cli
             - gulp ssa --state $State --waveId $WaveId --traffic $SampleRate --recipe $RecipeToDivertTo
             - git add --all
@@ -46,6 +47,7 @@ pipelines:
             - node
           script:
             - npm ci
+            - npm -g config set user root
             - npm install -g gulp-cli
             - gulp build
             - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
@@ -68,6 +70,7 @@ pipelines:
             - node
           script:
             - npm ci
+            - npm -g config set user root
             - npm install -g gulp-cli
             - gulp build
             - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY
