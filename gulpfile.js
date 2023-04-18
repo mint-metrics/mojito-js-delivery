@@ -61,7 +61,7 @@ function test()
 }
 
 function build()
-{console.log('aa');
+{
     del(['dist/assets/js']);
     let containerName = config.containerName;
     let modularResult = {liveList: [], stagingList: [], divertList: [], inactive: 0};
