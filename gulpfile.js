@@ -165,6 +165,31 @@ function build()
             
             callback(null, file);
         }))
+        .pipe(through.obj(function(file, enc, callback)
+        {
+            // add defensive check to prevent Mojito gets loading multi times
+            if (!config.allowMultiInstance) {
+                let content = fs.readFileSync(`dist/assets/js/${containerName}.js`, 'utf8');
+                let position = content.indexOf('Mojito =');
+                if (position == -1) {
+                    position = content.indexOf('Mojito=');
+                }
+
+                content = content.substr(0, position) + 'if (!window.Mojito || !Mojito.testObjects || !Object.keys(Mojito.testObjects).length) {' + content.substring(position) + '}';
+                fs.writeFileSync(`dist/assets/js/${containerName}.js`, content);
+
+                content = fs.readFileSync(`dist/assets/js/${containerName}.pretty.js`, 'utf8');
+                position = content.indexOf('Mojito =');
+                if (position == -1) {
+                    position = content.indexOf('Mojito=');
+                }
+
+                content = content.substr(0, position) + 'if (!window.Mojito || !Mojito.testObjects || !Object.keys(Mojito.testObjects).length) {' + content.substring(position) + '}';
+                fs.writeFileSync(`dist/assets/js/${containerName}.pretty.js`, content);
+            }
+
+            callback(null, file);
+        }))
     );
 }
 
