@@ -927,6 +927,24 @@
             testDiv2.innerHTML = 'changed';
         });
 
+        it('Prevent Mojito gets loading twice', function (done) {
+            var po = document.createElement('script');
+            po.type = 'text/javascript';
+            po.async = false;
+
+            var stags = document.getElementsByTagName('script');
+            var s = document.getElementsByTagName('script')[stags.length -1];
+            s.parentNode.insertBefore(po, s);
+            po.src = '../dist/assets/js/mojito.js';
+            po.onload = function () {
+                window.setTimeout(function () {
+                    // if Mojito loads twice, then Object.keys(Mojito.testObjects).length should be 0.
+                    if (Object.keys(Mojito.testObjects).length) {
+                        done();
+                    }
+                });
+            };
+        });
     });
 
     mocha.run()
