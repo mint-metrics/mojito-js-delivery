@@ -938,7 +938,7 @@
             po.src = '../dist/assets/js/mojito.js';
             po.onload = function () {
                 window.setTimeout(function () {
-                    // if Mojit gets loading twice, then Object.keys(Mojito.testObjects).length should be 0.
+                    // iif Mojito loads twice, then Object.keys(Mojito.testObjects).length should be 0.
                     if (Object.keys(Mojito.testObjects).length) {
                         done();
                     }

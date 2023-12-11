@@ -60,7 +60,7 @@ function test()
     return runTests();
 }
 
-function insertPreventDuplicateLoadingCheck(fileName) {
+function insertDuplicateContainerCheck(fileName) {
     let content = fs.readFileSync(fileName, 'utf8');
     let position = content.indexOf('Mojito =');
     if (position == -1) {
@@ -110,8 +110,8 @@ function build()
             {
                 // add defensive check to prevent Mojito gets loading multi times
                 if (!config.allowMultiInstance) {
-                    insertPreventDuplicateLoadingCheck(`dist/assets/js/${containerName}.js`);
-                    insertPreventDuplicateLoadingCheck(`dist/assets/js/${containerName}.pretty.js`);
+                    insertDuplicateContainerCheck(`dist/assets/js/${containerName}.js`);
+                    insertDuplicateContainerCheck(`dist/assets/js/${containerName}.pretty.js`);
                 }
 
                 callback(null, file);
@@ -190,8 +190,8 @@ function build()
         {
             // add defensive check to prevent Mojito gets loading multi times
             if (!config.allowMultiInstance) {
-                insertPreventDuplicateLoadingCheck(`dist/assets/js/${containerName}.js`);
-                insertPreventDuplicateLoadingCheck(`dist/assets/js/${containerName}.pretty.js`);
+                insertDuplicateContainerCheck(`dist/assets/js/${containerName}.js`);
+                insertDuplicateContainerCheck(`dist/assets/js/${containerName}.pretty.js`);
             }
 
             callback(null, file);

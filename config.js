@@ -6,5 +6,7 @@ module.exports = {
     // Production S3 container
     s3BucketPRD: 'mojito-js/js',
     // S3 Region
-    s3Region: 'ap-southeast-2'
+    s3Region: 'ap-southeast-2',
+    // allow Mojito load more than one times
+    allowMultiInstance: false
 };
