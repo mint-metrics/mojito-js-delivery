@@ -1,39 +1,34 @@
 'use strict';
 const yaml = require('js-yaml'),
-    fs = require("fs");
+    fs = require('fs');
 const colorRed = '\x1b[31m',
     colorCyan = '\x1b[36m',
     colorReset = '\x1b[0m';
 
-module.exports = function (args, cb)
-{
-    if (!checkArgs(args, cb)) {
+module.exports = function (args) {
+    if (!checkArgs(args)) {
         return;
     }
 
     let cmd = Object.keys(args)[0],
         waveId = args[cmd];
 
-    createTest(cmd, waveId, cb);
+    createTest(cmd, waveId);
 }
 
-function testExists(waveId, cb)
-{
+function testExists(waveId) {
     // lib/waves/{wave id} folder must be empty
     let baseFolder = 'lib/waves/';
-    if (!fs.existsSync(baseFolder))
-    {
+    if (!fs.existsSync(baseFolder)) {
         return false;
     }
 
     let waveFolder = baseFolder + waveId,
         folderExist = fs.existsSync(waveFolder);
     if (folderExist && fs.readdirSync(waveFolder).length) {
-        setTimeout(function ()
-        {
+        setTimeout(function () {
             console.warn(`${colorRed}%s${colorReset}`, `The folder ${waveFolder} already exists.`);
         });
-        cb();
         return true;
     }
 
@@ -43,24 +38,19 @@ function testExists(waveId, cb)
         exist = false,
         wave;
 
-    for (wave of waves)
-    {
-        if (!fs.existsSync(`${baseFolder}${wave}/config.yml`))
-        {
+    for (wave of waves) {
+        if (!fs.existsSync(`${baseFolder}${wave}/config.yml`)) {
             continue;
         }
 
-        try 
-        {
+        try {
             test = yaml.safeLoad(fs.readFileSync(`${baseFolder}${wave}/config.yml`, 'utf8'));
         }
-        catch (e) 
-        {
+        catch (e) {
             continue;
         }
 
-        if (test.state == 'inactive' || test.id != waveId)
-        {
+        if (test.state == 'inactive' || test.id != waveId) {
             continue;
         }
 
@@ -68,23 +58,19 @@ function testExists(waveId, cb)
         break;
     }
 
-    if (exist)
-    {
-        setTimeout(function ()
-        {
+    if (exist) {
+        setTimeout(function () {
             console.warn(`${colorRed}%s${colorReset}`, `Duplicated wave ${waveId} found in ${baseFolder}${wave}/config.yml.`);
         });
-        cb();
     }
 
     return exist;
 }
 
-function createTest(cmd, waveId, cb)
-{
+function createTest(cmd, waveId) {
     // lib/waves/{wave id} folder must be empty
     let waveFolder = 'lib/waves/' + waveId;
-    if (testExists(waveId, cb)) {
+    if (testExists(waveId)) {
         return;
     }
 
@@ -93,18 +79,17 @@ function createTest(cmd, waveId, cb)
     }
 
     if (cmd == 'ab') {
-        createABTest(waveId, cb);
+        createABTest(waveId);
     }
     else if (cmd == 'demo') {
-        createDemoTest(waveId, cb);
+        createDemoTest(waveId);
     }
     else if (cmd == 'aa') {
-        createAATest(waveId, cb);
+        createAATest(waveId);
     }
 }
 
-function createABTest(waveId, cb)
-{
+function createABTest(waveId) {
     let waveFolder = 'lib/waves/' + waveId;
     // config.yml
     let test = {
@@ -139,15 +124,12 @@ function createABTest(waveId, cb)
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
 
-    setTimeout(function ()
-    {
+    setTimeout(function () {
         console.log(`%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ` has been created successfully.`);
     });
-    cb();
 }
 
-function createDemoTest(waveId, cb)
-{
+function createDemoTest(waveId) {
     let waveFolder = 'lib/waves/' + waveId;
     // config.yml
     let test = {
@@ -189,15 +171,12 @@ function createDemoTest(waveId, cb)
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
 
-    setTimeout(function ()
-    {
+    setTimeout(function () {
         console.log(`%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ` has been created successfully.`);
     });
-    cb();
 }
 
-function createAATest(waveId, cb)
-{
+function createAATest(waveId) {
     let waveFolder = 'lib/waves/' + waveId;
     // config.yml
     let test = {
@@ -224,47 +203,39 @@ function createAATest(waveId, cb)
 }`;
     fs.writeFileSync(waveFolder + '/trigger.js', content);
 
-    setTimeout(function ()
-    {
+    setTimeout(function () {
         console.log(`%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ` has been created successfully.`);
     });
-    cb();
 }
 
-function checkArgs(args, cb)
-{
+function checkArgs(args) {
     let keys = Object.keys(args);
     if (keys.length > 1) {
         setTimeout(usage);
-        cb();
         return false;
     }
 
     let paraName = keys[0];
     if (paraName != 'ab' && paraName != 'demo' && paraName != 'aa') {
         setTimeout(usage);
-        cb();
         return false;
     }
 
     // wave id validation
     if (args[paraName] == null || /[<>:"|?*]/.test(args[paraName])) {
-        setTimeout(function ()
-        {
+        setTimeout(function () {
             console.warn(`${colorRed}%s${colorReset}`, 'Please specify an valid wave id.');
         });
-        cb();
         return false;
     }
 
     return true;
 }
 
-function usage()
-{
+function usage() {
     console.warn(`${colorRed}%s${colorReset}`, 'Invalid parameters.');
     console.warn('Usage:');
-    console.warn('  gulp new --ab {{wave id}}');
-    console.warn('  gulp new --demo {{wave id}}');
-    console.warn('  gulp new --aa {{wave id}}');
+    console.warn('  npm run new -- --ab {{wave id}}');
+    console.warn('  npm run new -- --demo {{wave id}}');
+    console.warn('  npm run new -- --aa {{wave id}}');
 }
