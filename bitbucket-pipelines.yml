@@ -31,9 +31,7 @@ pipelines:
             - node
           script:
             - npm ci
-            - npm -g config set user root
-            - npm install -g gulp-cli
-            - gulp ssa --state $State --waveId $WaveId --traffic $SampleRate --recipe $RecipeToDivertTo
+            - npm run set -- $State --waveId $WaveId --traffic $SampleRate --recipe $RecipeToDivertTo
             - git add --all
             - git commit --allow-empty -m "Updating $WaveId test to $State"
             - git push
@@ -47,10 +45,8 @@ pipelines:
             - node
           script:
             - npm ci
-            - npm -g config set user root
-            - npm install -g gulp-cli
-            - gulp build
-            - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
+            - npm run build
+            - npm run publish -- --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY --production
       # - step:   # Uncomment to add Cloudfront Invalidation step
       #     name: Invalidate Cloudfront objects
       #     script:
@@ -70,7 +66,5 @@ pipelines:
             - node
           script:
             - npm ci
-            - npm -g config set user root
-            - npm install -g gulp-cli
-            - gulp build
-            - gulp publish --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY
+            - npm run build
+            - npm run publish -- --awsk $AWS_ACCESS_KEY_ID --awss $AWS_SECRET_ACCESS_KEY

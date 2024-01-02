@@ -5,35 +5,32 @@ const colorRed = '\x1b[31m',
     colorCyan = '\x1b[36m',
     colorReset = '\x1b[0m';
 
-module.exports = function (args, cb)
-{
-    if (!checkArgs(args, cb)) {
+module.exports = function (args) {
+    if (!checkArgs(args)) {
         return;
     }
 
-    let cmd = Object.keys(args)[0],
-        waveId = args[cmd];
+    let cmd = args.state,
+        waveId = args.waveId;
 
     if (cmd == 'divert') {
-        divertTest(waveId, args.recipe, cb);
+        divertTest(waveId, args.recipe);
     }
     else {
-        setTestState(waveId, cmd, args, cb);
+        setTestState(waveId, cmd, args);
     }
 }
 
-function setTestState(waveId, cmd, args, cb)
-{
+function setTestState(waveId, cmd, args) {
     let test;
     try {
-        test = yaml.safeLoad(fs.readFileSync(`lib/waves/${waveId}/config.yml`, 'utf8'));
+        test = yaml.load(fs.readFileSync(`lib/waves/${waveId}/config.yml`, 'utf8'));
     }
     catch (e) {
-        setTimeout(function ()
-        {
+        setTimeout(function () {
             console.error(`${colorRed}%s${colorReset}`, `Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
         });
-        cb(new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`));
+        throw new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
     }
 
     test.state = cmd;
@@ -41,18 +38,13 @@ function setTestState(waveId, cmd, args, cb)
     if (cmd == 'live') {
         test.sampleRate = 1;
         // traffic 
-        if (args.traffic != null)
-        {
+        if (args.traffic != null) {
             let traffic = parseFloat(args.traffic);
-            if (isNaN(traffic) || (traffic <=0 || traffic > 1))
-            {
-                setTimeout(function ()
-                {
+            if (isNaN(traffic) || (traffic <= 0 || traffic > 1)) {
+                setTimeout(function () {
                     console.error(`${colorRed}%s${colorReset}`, `Traffic must be in range (0, 1].`);
                 });
-                cb(new Error(`Traffic must be in range (0, 1].`));
-
-                return;
+                throw new Error(`Traffic must be in range (0, 1].`);
             }
             test.sampleRate = traffic;
         }
@@ -62,38 +54,30 @@ function setTestState(waveId, cmd, args, cb)
     }
 
     fs.writeFileSync(`lib/waves/${waveId}/config.yml`, yaml.dump(test));
-    setTimeout(function ()
-    {
+    setTimeout(function () {
         console.log(
-            `%s${colorCyan}%s${colorReset}%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ' has been changed to ', cmd, ' successfully.');
+            `%s${colorCyan}%s${colorReset}%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ' has been changed to ', cmd, ' successfully:', `./lib/waves/${waveId}/config.yml`);
     });
-    cb();
 }
 
-function divertTest(waveId, recipe, cb)
-{
+function divertTest(waveId, recipe) {
     let test;
     try {
-        test = yaml.safeLoad(fs.readFileSync(`lib/waves/${waveId}/config.yml`, 'utf8'));
+        test = yaml.load(fs.readFileSync(`lib/waves/${waveId}/config.yml`, 'utf8'));
     }
     catch (e) {
-        setTimeout(function ()
-        {
+        setTimeout(function () {
             console.error(`${colorRed}%s${colorReset}`, `Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
         });
-        cb(new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`));
-        return;
+        throw new Error(`Failed to read lib/waves/${waveId}/config.yml: ${e.message}`);
     }
 
     // test must be live
-    if (test.state != 'live')
-    {
-        setTimeout(function ()
-        {
+    if (test.state != 'live') {
+        setTimeout(function () {
             console.error(`${colorRed}%s${colorReset}`, `Test must be live.`);
         });
-        cb(new Error(`Test must be live.`));
-        return;
+        throw new Error(`Test must be live.`);
     }
 
     // recipe existence
@@ -105,79 +89,67 @@ function divertTest(waveId, recipe, cb)
     }
 
     if (!recipeObject) {
-        setTimeout(function ()
-        {
+        setTimeout(function () {
             console.error(`${colorRed}%s${colorReset}`, `The recipe ${recipe} doesn't exist.`);
         });
-        cb(new Error(`The recipe ${recipe} doesn't exist.`));
-        return;
+        throw new Error(`The recipe ${recipe} doesn't exist.`);
     }
 
     test.divertTo = recipe;
     fs.writeFileSync(`lib/waves/${waveId}/config.yml`, yaml.dump(test));
-    setTimeout(function ()
-    {
+    setTimeout(function () {
         console.log(
-            `%s${colorCyan}%s${colorReset}%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ' has been diverted to ', `${recipe} (${recipeObject.name})`, ' successfully.');
+            `%s${colorCyan}%s${colorReset}%s${colorCyan}%s${colorReset}%s`, 'Test ', waveId, ' has been diverted to ', `${recipe} (${recipeObject.name})`, ' successfully:', `./lib/waves/${waveId}/config.yml`);
     });
-    cb();
 }
 
-function checkArgs(args, cb)
-{
+function checkArgs(args) {
     let keys = Object.keys(args),
-        cmd = keys[0];
+        cmd = args.state;
 
     if (cmd == 'divert' || cmd == 'live') {
-        if (keys.length > 2) {
+        if (keys.length > 3) {
             usage();
-            cb(new Error(`Invalid parameters.`));
-            return false;
+            throw new Error(`Invalid parameters.`);
         }
     }
-    else if (keys.length > 1) {
+    else if (keys.length > 2) {
         usage();
-        cb(new Error(`Invalid parameters.`));
-        return false;
+        throw new Error(`Invalid parameters.`);
     }
 
     if (cmd != 'live' && cmd != 'staging' && cmd != 'inactive' && cmd != 'divert') {
         usage();
-        cb(new Error(`Invalid state: ${cmd}.`));
-        return false;
+        throw new Error(`Invalid state: ${cmd}.`);
     }
 
     // wave id validation
-    let waveId = args[cmd];
+    let waveId = args.waveId;
     if (waveId == null || /[<>:"|?*]/.test(waveId)) {
         console.warn(`${colorRed}%s${colorReset}`, 'Please specify an valid wave id.');
-        cb(new Error(`Please specify an valid wave id.`));
-        return false;
+        throw new Error(`Please specify an valid wave id.`);
     }
 
     // wave existence
     if (!fs.existsSync(`lib/waves/${waveId}/config.yml`)) {
         console.warn(`${colorRed}%s${colorReset}`, `Wave id ${waveId} doesn't exist.`);
-        cb(new Error(`Wave id ${waveId} doesn't exist.`));
-        return false;
+        throw new Error(`Wave id ${waveId} doesn't exist.`);
     }
 
     // divert recipe
     if (cmd == 'divert' && args['recipe'] == null) {
         console.warn(`${colorRed}%s${colorReset}`, 'Please specify a recipe id.');
-        cb(new Error(`Please specify a recipe id.`));
-        return false;
+        throw new Error(`Please specify a recipe id.`);
     }
 
     return true;
 }
 
-function usage()
-{
+function usage() {
     console.log(`${colorRed}%s${colorReset}`, 'Invalid parameters.');
     console.warn('Usage:');
-    console.warn('  gulp set --live {{wave id}} --traffic {{simple rate}}');
-    console.warn('  gulp set --staging {{wave id}}');
-    console.warn('  gulp set --inactive {{wave id}}');
-    console.warn('  gulp set --divert {{wave id}} -recipe {{recipe id}}');
+    console.warn('  npm run set -- live --waveId {{wave id}} --traffic {{simple rate}}');
+    console.warn('  npm run set -- staging --waveId {{wave id}}');
+    console.warn('  npm run set -- inactive --waveId {{wave id}}');
+    console.warn('  npm run set -- divert --waveId {{wave id}} --recipe {{recipe id}}');
 }
