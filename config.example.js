@@ -12,12 +12,12 @@ module.exports = {
     // Lifecycle Events conf
     lifecycleEvents: {
         ci: {
-            branch: 'lifecycle-events-metadata-log'
+            branch: 'your-production-branch'
         },
         analytics: {
             snowplow: {
-                appId: 'mintmetrics',
-                collectorUrl: 'c.mintmetrics.io'
+                appId: 'your-app-id',
+                collectorUrl: 'your.collector.com'
             }
         }
     }
