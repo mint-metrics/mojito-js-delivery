@@ -77,10 +77,6 @@ function checkConfig() {
     }
 
     if (analytics == 'snowplow') {
-        if (!analyticsConf.snowplow.appId) {
-            throw new Error(`Mojito Lifecycle events - please specify snowplow appId in config.js.`);
-        }
-
         if (!analyticsConf.snowplow.collectorUrl) {
             throw new Error(`Mojito Lifecycle events - please specify snowplow collectorUrl in config.js.`);
         }
