@@ -8,5 +8,17 @@ module.exports = {
     // S3 Region
     s3Region: 'ap-southeast-2',
     // allow Mojito load more than one times
-    allowMultiInstance: false
+    allowMultiInstance: false,
+    // Lifecycle Events conf
+    lifecycleEvents: {
+        ci: {
+            branch: 'lifecycle-events-metadata-log'
+        },
+        analytics: {
+            snowplow: {
+                appId: 'mintmetrics',
+                collectorUrl: 'c.mintmetrics.io'
+            }
+        }
+    }
 };

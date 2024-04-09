@@ -1,22 +1,27 @@
 {
-    "$id": "https://mojito.mintmetrics.io/wave.schema.json",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Wave configuration 1-0-0",
+    "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+    "title": "Wave configuration",
     "description": "A Mojito Wave configuration for generating a test object",
+    "self": {
+        "vendor": "io.mintmetrics.mojito",
+        "name": "mojito_wave_configuration",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
     "type": "object",
     "properties": {
         "id": {
             "title": "Wave ID",
-            "description": "The test ID and part of the experiment salt",
+            "description": "The test ID. Also used as part of the experiment salt.",
             "type": "string",
             "pattern": "^[a-zA-Z0-9-]+$",
-            "maxLength": 36
+            "maxLength": 128
         },
         "name": {
             "title": "Wave name",
-            "description": "The name of the test used in reports",
+            "description": "The name of the test to be used in reports",
             "type": "string",
-            "maxLength": 128
+            "maxLength": 255
         },
         "sampleRate": {
             "title": "Sample rate",
@@ -26,11 +31,11 @@
             "maximum": 1
         },
         "divertTo": {
-            "title": "Divert to recipe",
+            "title": "Divert to a recipe",
             "description": "Divert all traffic in this test to a specified recipe ID",
             "type": "string",
             "pattern": "^[a-zA-Z0-9]+$",
-            "maxLength": 36
+            "maxLength": 128
         },
         "recipes": {
             "title": "Recipes object",
@@ -53,13 +58,15 @@
                             "title": "Recipe JS",
                             "description": "Relative path to the recipe's JS function",
                             "type": "string",
-                            "pattern": "\\.js$"
+                            "pattern": "\\.js$",
+                            "maxLength": 128
                         },
                         "css": {
                             "title": "Recipe CSS",
                             "description": "Relative path to the recipe's CSS stylesheet",
                             "type": "string",
-                            "pattern": "\\.css$"
+                            "pattern": "\\.css$",
+                            "maxLength": 128
                         },
                         "sampleRate": {
                             "title": "Sample rate",
@@ -69,7 +76,7 @@
                             "maximum": 1
                         }
                     },
-                    "additionalProperties": false,
+                    "additionalProperties": true,
                     "required": ["name"]
                 }
             },
@@ -79,24 +86,28 @@
             "title": "Trigger function",
             "description": "Relative path to the experiment's trigger JS function - the function that activates an experiment",
             "type": "string",
-            "pattern": "\\.js$"
+            "pattern": "\\.js$",
+            "maxLength": 128
         },
         "js": {
             "title": "Shared JS",
             "description": "Relative path to a shared JS function run before all recipes",
             "type": "string",
-            "pattern": "\\.js$"
+            "pattern": "\\.js$",
+            "maxLength": 128
         },
         "css": {
             "title": "Shared CSS",
             "description": "Relative path to shared CSS styles applied for all recipes",
             "type": "string",
-            "pattern": "\\.css$"
+            "pattern": "\\.css$",
+            "maxLength": 128
         },
         "gaExperimentId": {
             "title": "Google Optimize Experiment ID",
             "description": "Track this experiment in Google Optimize under a given Experiment ID",
-            "type": "string"
+            "type": "string",
+            "maxLength": 40
         },
         "state": {
             "title": "State",
@@ -110,7 +121,7 @@
             "type": "boolean"
         }
     },
-    "required": ["id", "name", "recipes", "state", "sampleRate", "trigger"],
+    "required": ["id", "name", "recipes", "state", "sampleRate"],
     "additionalProperties": true,
     "oneOf": [{
             "properties": {

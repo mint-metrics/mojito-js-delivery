@@ -6,8 +6,12 @@ const zlib = require('zlib');
 const { minify } = require('terser');
 const cliTable = require('cli-table');
 const config = require('../config');
+const sendLifecycleEventsFn = require('./cli-send-lifecycle-events');
 
-let builtWaves = {};
+let args,
+    builtWaves = {},
+    changedConfigFiles = {},
+    comparingCommits;
 /**
  * build a test object
  * @param {String} configFile, config file path
@@ -20,7 +24,10 @@ function buildTest(configFile, buildResult) {
         dirname;
 
     dirname = path.dirname(configFile);
-    testObject = tokenizePaths(yaml.load(fs.readFileSync(configFile, 'utf8')));
+    testObject = yaml.load(fs.readFileSync(configFile, 'utf8'));
+    sendLifecycleEvents(testObject, configFile);
+
+    testObject = tokenizePaths(testObject);
 
     // skip inactive tests
     if (testObject.state == 'inactive') {
@@ -295,10 +302,38 @@ function appendBuildInfo(containerData, content) {
     return content + '\r' + buildInfo;
 }
 
+function sendLifecycleEvents(testObject, configFile) {
+    if (!args.trackLifecycleEvents || !(configFile in changedConfigFiles)) {
+        return;
+    }
+
+    sendLifecycleEventsFn(args, {
+        testObject: testObject,
+        configFilePath: changedConfigFiles[configFile],
+        comparingCommits: comparingCommits
+    });
+}
+
+function parseChangedFileList(rootPath) {
+    let changedFilePath = '/etc/mojito-changed-files.txt';
+    let changedFleList = fs.readFileSync(changedFilePath, 'utf8').split('\n');
+
+    let fileName;
+    for (let i=0,c=changedFleList.length;i<c;i++) {
+        fileName = path.join(rootPath, changedFleList[i].trim());
+        if (fileName && fileName.endsWith('config.yml')) {
+            changedConfigFiles[fileName] = changedFleList[i].trim();
+        }
+    }
+
+    comparingCommits = fs.readFileSync('/etc/mojito-comparing-commits.txt', 'utf8');
+}
+
 /**
  * Mojito building - building test objects based on config.yml
  */
-module.exports = async function build () {
+module.exports = async function build (cliArgs) {
+    args = cliArgs||{};
     let containerName = config.containerName;
     let rootPath = process.cwd(),
         wavesPath = path.join(rootPath, 'lib', 'waves'),
@@ -326,6 +361,10 @@ module.exports = async function build () {
             }
 
             configFiles.push(configFilePath);
+        }
+
+        if (args.trackLifecycleEvents) {
+            parseChangedFileList(rootPath);
         }
     }
 
