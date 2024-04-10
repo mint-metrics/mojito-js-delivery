@@ -78,7 +78,7 @@ async function runCommand() {
     
     switch (command) {
         case 'build':
-            mojitoBuild();
+            mojitoBuild(args);
             break;
         case 'test':
             runTests();

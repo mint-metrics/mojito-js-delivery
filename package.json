@@ -1,6 +1,6 @@
 {
   "name": "mojito-js-delivery",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Utilities to build, launch and measure split tests. Part of the Mojito framework.",
   "scripts": {
     "build": "node scripts/command.js --command build",
@@ -9,10 +9,11 @@
     "deploy": "node scripts/command.js --command deploy",
     "new": "node scripts/command.js --command new",
     "set": "node scripts/command.js --command set",
-    "watch": "nodemon --on-change-only -e js,css,yml --watch ./lib --exec npm run deploy"
+    "watch": "nodemon --on-change-only -e js,css,yml --watch ./lib --exec npm run deploy",
+    "getChangedFiles": "node scripts/cli-get-changed-files.js"
   },
   "devDependencies": {
-    "chrome-launcher": "^0.15.0",
+    "chrome-launcher": "^0.15.2",
     "clean-css": "^5.1.2",
     "mocha": "^10.2.0",
     "puppeteer-core": "^18.0.5",
@@ -20,7 +21,8 @@
     "js-yaml": "^4.1.0",
     "terser": "^5.26.0",
     "@aws-sdk/client-s3": "^3.478.0",
-    "cli-table": "^0.3.11"
+    "cli-table": "^0.3.11",
+    "@snowplow/node-tracker": "^3.22.1"
   },
   "dependencies": {}
 }

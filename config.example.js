@@ -8,5 +8,17 @@ module.exports = {
     // S3 Region
     s3Region: 'ap-southeast-2',
     // allow Mojito load more than one times
-    allowMultiInstance: false
+    allowMultiInstance: false,
+    // Lifecycle Events conf
+    lifecycleEvents: {
+        ci: {
+            branch: 'your-production-branch'
+        },
+        analytics: {
+            snowplow: {
+                appId: 'your-app-id',
+                collectorUrl: 'your.collector.com'
+            }
+        }
+    }
 };
