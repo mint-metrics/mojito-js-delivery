@@ -416,6 +416,7 @@ module.exports = async function build (cliArgs) {
     let containerData = {
         container: containerName,
         mojitoVersion: process.env.npm_package_version,
+        commitHash: args.commitHash,
         size: {
             total: buildResult.container.raw,
             totalCompressed: buildResult.container.minfiedAndGzipped,
