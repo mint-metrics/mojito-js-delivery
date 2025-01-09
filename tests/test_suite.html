@@ -772,6 +772,37 @@
         it('Tests fail when recipe-level sample rates are not set for all recipes', function () {
             w16Activated.should.equal(false);
         });
+
+        // Don't activate when preview parameter doesn't match a recipe ID
+        var w17Activated = false;
+        window.history.pushState(null, "Preview mode for W17", document.location.pathname + '?mojito_w17=-1');
+        Mojito.addTest({
+            id: 'w17',
+            state: 'live',
+            name: 'do_not_activate_preview_wrong_recipe',
+            sampleRate: 1,
+            trigger: function (e) {
+                e.activate();
+            },
+            recipes: {
+                '0': {
+                    name: 'control',
+                    js: function () {
+                        w17Activated = true;
+                    }
+                },
+                '1': {
+                    name: 'treatment',
+                    js: function () {
+                        w17Activated = true;
+                    }
+                }
+            }
+        });
+
+        it('Don\'t activate when preview parameter doesn\'t match a recipe ID', function () {
+            w17Activated.should.equal(false);
+        });
     });
 
     describe('Mojito utils functions', function () {
@@ -944,6 +975,45 @@
                     }
                 });
             };
+        });
+
+        it('Wait for intersection once', function (done) {
+            var testDiv = document.createElement('div');
+            testDiv.style = 'width:300px;height:300px';
+            document.body.appendChild(testDiv);
+
+            Mojito.utils.waitForIntersection(testDiv, function ()
+            {
+                done();
+            });
+
+            testDiv.scrollIntoView();
+        });
+
+        it('Wait for intersection multiple times', function (done) {
+            var placeholder = document.createElement('div');
+            placeholder.style = 'width:100%;height:5000px';
+            document.body.appendChild(placeholder);
+
+            var testDiv = document.createElement('div');
+            testDiv.style = 'width:300px;height:300px';
+            document.body.appendChild(testDiv);
+
+            var intersectionOnce = false;
+            Mojito.utils.waitForIntersection(testDiv, function ()
+            {
+                if (intersectionOnce) {
+                    done();
+                }
+
+                intersectionOnce = true;
+                window.scrollTo(0, 0);
+                window.setTimeout(function () {
+                    testDiv.scrollIntoView();
+                }, 300);
+            }, { once: false });
+
+            testDiv.scrollIntoView();
         });
     });
 
