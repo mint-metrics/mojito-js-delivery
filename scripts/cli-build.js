@@ -427,7 +427,11 @@ module.exports = async function build (cliArgs) {
         containerData.size.experiments[testId] = buildResult.experiments[testId].size;
     }
 
+    let sharedCode = targetContents[2];
+    targetContents.splice(2, 1);
+
     targetContents.push('\nMojito.buildInfo=' + JSON.stringify(containerData) + ';');
+    targetContents.push(sharedCode);
 
     if (testObjectContents.length) {
         targetContents.push(testObjectContents.join('\n'));
