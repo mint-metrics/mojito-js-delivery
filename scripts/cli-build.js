@@ -402,11 +402,7 @@ module.exports = async function build (cliArgs) {
         }
     }
 
-    if (testObjectContents.length) {
-        targetContents.push(testObjectContents.join('\n'));
-    }
-
-    let targetContent = insertDuplicateContainerCheck(targetContents.join('\n'));
+    let targetContent = insertDuplicateContainerCheck(targetContents.join('\n') + (testObjectContents.length?testObjectContents.join('\n'):''));
     buildResult['container'].raw = targetContent.length;
 
     let minifiedContent = await minify(targetContent, {output: {comments: false}});
@@ -431,8 +427,18 @@ module.exports = async function build (cliArgs) {
         containerData.size.experiments[testId] = buildResult.experiments[testId].size;
     }
 
-    fs.writeFileSync(path.join(targetPath, containerName + '.pretty.js'), appendBuildInfo(containerData, targetContent));
-    fs.writeFileSync(path.join(targetPath, containerName + '.js'), appendBuildInfo(containerData, finalContent));
+    targetContents.push('\nMojito.buildInfo=' + JSON.stringify(containerData) + ';');
+
+    if (testObjectContents.length) {
+        targetContents.push(testObjectContents.join('\n'));
+    }
+
+    targetContent = insertDuplicateContainerCheck(targetContents.join('\n'));
+    minifiedContent = await minify(targetContent, {output: {comments: false}});
+    finalContent = targetContents[0] + '\n' + minifiedContent.code;
+
+    fs.writeFileSync(path.join(targetPath, containerName + '.pretty.js'), targetContent);
+    fs.writeFileSync(path.join(targetPath, containerName + '.js'), finalContent);
 
     outputBuildResult(buildResult);
 };
