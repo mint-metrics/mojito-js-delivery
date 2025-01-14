@@ -22,7 +22,7 @@
     "terser": "^5.37.0",
     "@aws-sdk/client-s3": "^3.722.0",
     "cli-table": "^0.3.11",
-    "@snowplow/node-tracker": "^4.1.0"
+    "@snowplow/node-tracker": "^3.22.1"
   },
   "dependencies": {}
 }
