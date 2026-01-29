@@ -13,14 +13,14 @@
     "getChangedFiles": "node scripts/cli-get-changed-files.js"
   },
   "devDependencies": {
-    "chrome-launcher": "^0.15.2",
+    "chrome-launcher": "^1.2.1",
     "clean-css": "^5.3.3",
-    "mocha": "^10.8.2",
-    "puppeteer-core": "^23.11.1",
+    "mocha": "^11.7.5",
+    "puppeteer-core": "^24.36.1",
     "should": "^13.2.3",
-    "js-yaml": "^4.1.0",
-    "terser": "^5.37.0",
-    "@aws-sdk/client-s3": "^3.722.0",
+    "js-yaml": "^4.1.1",
+    "terser": "^5.46.0",
+    "@aws-sdk/client-s3": "^3.975.0",
     "cli-table": "^0.3.11",
     "@snowplow/node-tracker": "^3.22.1"
   },

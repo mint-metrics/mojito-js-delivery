@@ -1,4 +1,4 @@
-image: atlassian/default-image:4
+image: atlassian/default-image:5
 
 pipelines:
   custom:
