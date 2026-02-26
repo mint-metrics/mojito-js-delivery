@@ -419,12 +419,25 @@ function mergeProps(testObject) {
                     continue;
                 }
 
+                let recipePayload = Object.assign(Object.assign({}, experimentPayload), recipesInFeature[key].payload||{});
+                if (Object.keys(recipePayload).length) {
+                    recipesInFeature[key].payload = recipePayload;
+                }
+
                 recipes[key] = recipesInFeature[key];
             }
         }
     } else if (Object.keys(recipesInFeature).length) {
         // no matched recipes, replace the Recipes in the affected test with those from MCP
         testObject.recipes = recipesInFeature;
+        // merge the payloads
+        for (let key in recipesInFeature) {
+            recipeInFeature = recipesInFeature[key];
+            let recipePayload = Object.assign(Object.assign({}, experimentPayload), recipeInFeature.payload||{});
+            if (Object.keys(recipePayload).length) {
+                recipeInFeature.payload = recipePayload;
+            }
+        }
         console.warn(`${testObject.name} (${testObject.id}): At least one recipe must be matched between MCP recipes and JS recipes, replaced JS recipes with MCP recipes.`);
     }
 }
